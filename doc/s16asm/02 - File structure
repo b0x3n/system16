@@ -1,0 +1,182 @@
+2 - File structure
+
+
+    2.1 - Directives
+    2.2 - The .section directive
+    2.3 - The .include directive
+
+
+The s16 assembler (s16a) is fussy about file layouts, it
+expects certain types of code to be in clearly identified
+sections.
+
+This is the first working version of s16a so there are
+some areas that need work, you may find issues I've not yet
+stumbled across but you can write and build applications
+and we have a small set of instructions to work with.
+
+There's still work to be done on all 3 applications, s16,
+s16a and s16l - lot's of features to add, bugs to iron out,
+some I'm aware of and tracking, and no doubt some I've no
+clue even exist.
+
+This project is evolving all the time so if you find any
+bugs or issues, have suggestions, criticisms or possible
+contributions then feel free to contact me.
+
+Anyway, enough of that - how do we write code for this
+thing?
+
+
+2.1 - Directives
+
+Directives are basically instructions for the assembler,
+they allow us to direct the assembler, gently guide it
+across a sea of great suffering.
+
+So far there are only two directives, there will be more
+in time but for now we have the two most important ones
+fully operational:
+
+    .section
+    .include
+
+As you can see, directives are prefixed by a single .
+(period) character - these are not part of the program
+we're writing, they're irrelevant after the assembler
+writes the object file.
+
+
+2.2 - The .section directive
+
+The .section directive is the most important, it allows
+us to tell the assembler what kind of input to expect.
+
+There are 5 sections in total:
+
+    header          - Every file opens in the header
+                      section by default. For now,
+                      we can't do anything here so
+                      it can be ignored in the meantime.
+
+    env             - This section allows us to set
+                      environment variables, more on
+                      this later.
+
+    ro              - This section is where we declare
+                      global read-only memory.
+
+    rw              - This section is where we declare
+                      global read-write memory.
+
+    code            - This is where we write all of our
+                      code.
+
+The good thing is that the env, ro and rw sections all
+function the same in terms of how we write them, they're
+just areas for declaring memory, they just have slightly
+different meanings.
+
+The ro and rw sections are where we declare and optionally
+assign global constants and variables - constants go in
+ro and variables in rw.
+
+The env variables are specifically used by the assembler
+and linker, this allows us to declare and use memory that
+is not compiled into the final executable. The linker will
+discard env data, only the ro and rw sections are linked
+into the final executable.
+
+Here's an example, skeleton assembly file:
+
+
+    ///////////////////////////////////////////////////////
+    //  Example_file                                     //
+    ///////////////////////////////////////////////////////
+    //
+
+        //  We open in the header section, this can be
+        //  ignored for now.
+        //
+
+
+        .section    env
+            //  Environment variables are declared here
+            //
+
+
+        .section    ro
+            //  Global constants are declared here
+            //
+
+
+        .section    rw
+            //  Global variables are declared here
+            //
+
+
+        .section    code
+            //  Code goes here.
+            //
+
+
+And we don't need to do things in that order, we can step
+into any section at any time, we can even re-enter sections
+we've already written to, this won't overwrite the previous
+section data but append to it. I mean, it's not particularly
+helpful but you can do it if you want.
+
+As for writing these sections, we'll get to that!
+
+
+2.3 - The .include directive
+
+The .include directve allows us to include external source
+files in our application, it's fairly straight forward.
+
+Let's imagine we have two assembly files, file_1 and file_2.
+
+We could assmble them into an object file with a single
+command like:
+
+    node s16a --asm file_1 file_2 --out file_2 -v
+
+Or, we could use an .include directive inside file_1:
+
+
+    ///////////////////////////////////////////////////////
+    //  file_1                                           //
+    ///////////////////////////////////////////////////////
+    //
+
+    //  Doesn't matter what section we're in, .directives
+    //  can be used anywhere...let's include file_2
+    //
+        .include file_2
+
+
+Now we can assemble like so:
+
+    node s16a --asm file_1 --out file_3 -v
+
+And get the same results. Note we don't use "quotes" with
+file names when we use the .include directive, we can't
+do:
+
+    .include "file_2"
+
+Because the parser will burst this string into an array
+of bytes! Don't do that!
+
+But you can include multiple files in a single line:
+
+    .include file_2 file_3
+
+For example. You can't include object files (yet, honestly
+never occurred to me until just now!).
+
+Anyway, you get the idea, the .directives are there to help
+the assembler know where everything is, now we just need to
+learn how to write the sections, see:
+
+    03 - Hello world
