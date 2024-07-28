@@ -339,22 +339,28 @@
             const   __exe_size          = ram_view.getUint32(window.S16_HEADER_EXESIZE, window.little_endian);
 
             const   __ip                = __get_reg('IP', __segment);
-            let     __bp                = __get_reg('BP', __segment);
-            
-            __bp -= 4;
+            //let     __bp                = __get_reg('BP', __segment);
+            let     __sp                = __get_reg('SP', __segment);
 
-            if (__bp < __exe_size)
+            if ((__sp - 4) < __exe_size)
                 return `Call error - stack full`;
 
     //  Push the return address onto the stack.
     //
-            ram_view.setUint32(__bp, __ip, window.little_endian);
+            //__set_reg('BP', __ip);
+            //ram_view.setUint32(__bp, __ip, window.little_endian);
+            ram_view.setUint32(__sp, __ip, window.little_endian);
 
-            __set_reg('BP', __bp, __segment);
+            console.log(`PUSHED RETURN ADDRESS ${__ip} at position ${__sp.toString(16)} on the stack`);
+
+
+            //ram_view.setUint32(window.S16_REG['BP'], __ip, window.little_endian);
+            __sp -= 4;
+            __set_reg('SP', __sp);
             __set_reg('IP', code_addr, __segment);
 
             __call_depth++;
-            messenger.verbose(`Executed call instruction to address ${code_addr}, return address ${ram_view.getUint32(__get_reg('BP'), window.little_endian)}, call depth = ${__call_depth}`);
+            messenger.verbose(`>> ${ram_view.getUint32(__sp + 4, window.little_endian)} <<Executed call instruction to address ${code_addr}, return address ${__ip}, call depth = ${__call_depth}, BP == ${__get_reg('BP').toString(16)}`);
 
             return true;
 
@@ -402,7 +408,7 @@
         ) =>
         {
 
-            const   __bp                = __get_reg('BP');
+            let     __sp                = __get_reg('SP');
 
             if (__int_handler)
                 objDevices[__int_handler].interrupt(ram, __segment);
@@ -410,11 +416,20 @@
     //  Pop the return address from the stack into the
     //  IP register.
     //
-    if (__call_depth > 1)
-    {
-            __set_reg('IP', ram_view.getUint32(__bp, window.little_endian));
-            __set_reg('BP', (__bp + 4));
-    }
+    // if (__call_depth >= 1)
+    // {
+
+        if ((__sp + 4) > 0xFFFF && __call_depth > 1)
+            return `STACK`;
+        else if (__call_depth > 1)
+        {
+            __sp += 4;
+            __set_reg('SP', __sp);
+            __set_reg('IP', ram_view.getUint32(__sp, window.little_endian));
+
+            console.log(`||||||||||||||||||||| POPPED BP ${__get_reg('BP').toString(16)} FRAM STACK AT OFFSET ${__sp.toString(16)} = IP = ${__get_reg('IP').toString(16)}`);
+        }    
+    // }
             messenger.verbose(`Executed return to ${__get_reg('IP')}`);
 
             __call_depth--;
@@ -516,32 +531,31 @@
 
             const   __exe_size          = ram_view.getUint32(window.S16_HEADER_EXESIZE, window.little_endian);
 
-            let     __bp                = __get_reg('BP', __segment);
+            let     __sp                = __get_reg('SP', __segment);
             let     __mnemonic          = code_line[0].mnemonic;
 
+            messenger.verbose(` Executed ${__mnemonic} (${__sp} = ${code_line[2]})`)
+
+            if (__sp < __exe_size)
+                return `Call error - stack full`;
+        
             if (__mnemonic === window.S16_MNEMONIC_PUSH8)
-                __bp -= 1;
+                ram_view.setUint8(__sp, code_line[2]);
+            if (__mnemonic === window.S16_MNEMONIC_PUSH16)
+                ram_view.setUint16(__sp, code_line[2], window.little_endian);
+            if (__mnemonic === window.S16_MNEMONIC_PUSH32)
+                ram_view.setUint32(__sp, code_line[2], window.little_endian);
+
+            if (__mnemonic === window.S16_MNEMONIC_PUSH8)
+                __sp -= 1;
             else if (__mnemonic === window.S16_MNEMONIC_PUSH16)
-                __bp -= 2;
+                __sp -= 2;
             else if (__mnemonic === window.S16_MNEMONIC_PUSH32)
-                __bp -= 4;    
+                __sp -= 4;    
             else
                 return false;
 
-            if (__bp < __exe_size)
-                return `Call error - stack full`;
-
-            __set_reg('BP', __bp, __segment);
-
-            messenger.verbose(` Executed ${__mnemonic} (${__bp} = ${code_line[2]})`)
-        
-            if (__mnemonic === window.S16_MNEMONIC_PUSH8)
-                ram_view.setUint8(__bp, code_line[2]);
-            if (__mnemonic === window.S16_MNEMONIC_PUSH16)
-                ram_view.setUint16(__bp, code_line[2], window.little_endian);
-            if (__mnemonic === window.S16_MNEMONIC_PUSH32)
-                ram_view.setUint32(__bp, code_line[2], window.little_endian);
-
+            __set_reg('SP', __sp, __segment);
             return true;
 
         };
@@ -561,44 +575,47 @@
 
             const   __exe_size          = ram_view.getUint32(window.S16_HEADER_EXESIZE, window.little_endian);
 
-            let     __bp                = __get_reg('BP', __segment);
+            let     __sp                = __get_reg('SP', __segment);
             let     __mnemonic          = code_line[0].mnemonic;
+            
+            // if ((__sp + 4) > 0xFFFC)
+            //     return `Cannot pop - bottom of stack reached`;
 
+
+
+
+            if (__mnemonic === window.S16_MNEMONIC_POP8)
+                __sp += 1;
+            if (__mnemonic === window.S16_MNEMONIC_POP16)
+                __sp += 2;
+            if (__mnemonic === window.S16_MNEMONIC_POP32)
+                __sp += 4;    
             if (__mnemonic === window.S16_MNEMONIC_POP8)
             {
                 if (! __is_writeable(ram_view, code_line[2]))
                     return `Attempt to write to a read-only location: ${__get_reg('IP')} ${code_line[2]}, ${code_line[3]}`;
         
-                ram_view.setUint8(code_line[2], __get_reg('BP'));
+                ram_view.setUint8(code_line[2], ram_view.getUint16(__sp, window.little_endian));
             }
             else if (__mnemonic === window.S16_MNEMONIC_POP16)
             {
                 if (! __is_writeable(ram_view, code_line[2]))
                     return `Attempt to write to a read-only location: ${__get_reg('IP')} ${code_line[2]}, ${code_line[3]}`;
         
-                ram_view.setUint16(code_line[2], __get_reg('BP'), window.little_endian);
+                ram_view.setUint16(code_line[2], ram_view.getUint16(__sp, window.little_endian), window.little_endian);
             }    
             else if (__mnemonic === window.S16_MNEMONIC_POP32)
             {
                 if (! __is_writeable(ram_view, code_line[2]))
                     return `Attempt to write to a read-only location: ${__get_reg('IP')} ${code_line[2]}, ${code_line[3]}`;
         
-                ram_view.setUint32(code_line[2], __get_reg('BP'), window.little_endian);
+                ram_view.setUint32(code_line[2], ram_view.getUint32(__sp, window.little_endian), window.little_endian);
             }
             else
                 return false;
 
-            if (__mnemonic === window.S16_MNEMONIC_POP8)
-                __bp += 1;
-            if (__mnemonic === window.S16_MNEMONIC_POP16)
-                __bp += 2;
-            if (__mnemonic === window.S16_MNEMONIC_POP32)
-                __bp += 4;    
-
-
-            __set_reg('BP', __bp, __segment);
-
-            messenger.verbose(`Executed ${__mnemonic} (${__bp} = ${code_line[2]})`)
+            __set_reg('SP', __sp, __segment);
+            //messenger.verbose(`Executed ${__mnemonic} (${__sp.toString(2)} = ${code_line[2].toString(2)})`)
 
             return true;
 
@@ -835,9 +852,9 @@
 
     //  Set up the registers for execution.
     //
-            __set_reg('BP', 0xFFFF, 0);
+            __set_reg('BP', 0xFFFC, 0);
             __set_reg('IP', ram_view.getUint32(window.S16_HEADER_MAIN, window.little_endian), 0);
-            __set_reg('SP', 0xFFFF, 0);
+            __set_reg('SP', 0xFFFC, 0);
 
             __set_reg('CS', 0, 0);
             __set_reg('DS', 0, 0);

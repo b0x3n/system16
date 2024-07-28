@@ -8,4 +8,19 @@
 
         function        putchar
 
+            push32      %BP;
+            mov32       BP, %SP;
+
+            push32      10;
+            push32      20;
+
+            mov32       FX, 10;
+
+            pop32       EX;
+            pop32       DX;
+
+            pop32       BP;
+
+            ret         1;
+
         end
