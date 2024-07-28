@@ -16,6 +16,10 @@ Functions and return
     terminates when it reaches the end of the function
     code - needs attention.
 
+    -- UPDATE - seem to have got this issue fixed,
+    still testing but functions now return to the
+    caller whether there's a ret instruction or not.
+
 
 Endianess
 

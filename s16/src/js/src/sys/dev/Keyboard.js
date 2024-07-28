@@ -36,15 +36,29 @@
             get_reg                     = _get_reg;
             set_reg                     = _set_reg;
 
-            window.addEventListener('keydown', event => {
+            window.addEventListener('keypress', event => {
+
+                if (! window.console_enabled)
+                    return;
+
+                event.preventDefault();
+
                 let     __flags         = get_reg('FL');
+                let     __key           = event.key;
 
     //  Disable the stop bit in FL - this will
     //  allow the system to resume execution.
     //
                 __flags = __flags & (~0b00000100);
 
-                ram_view.setUint8(window.S16_REG['EX'], event.key.charCodeAt(0), window.little_endian);
+                if (__key === 'Enter')
+                {
+                    __key = 13;
+                    ram_view.setUint8(window.S16_REG['FX'], __key, window.little_endian);
+                }
+                else
+                    ram_view.setUint8(window.S16_REG['FX'], __key.charCodeAt(0), window.little_endian);
+                
                 set_reg('FL', __flags);
             });
 

@@ -1,0 +1,42 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/src/scss/style/_nav.scss                //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+
+    nav
+    {
+
+        position: absolute;
+
+        top: 6vh;
+        left: 0vw;
+        width: 100vw;
+        height: 5vh;
+
+        line-height: 4.5vh;
+
+        background-color: $cell-bg;
+
+    }
+
+        nav a
+        {
+
+            position: relative;
+            float: right;
+
+            padding: 0px 1vw 0px 2vw;
+
+            color: #FFF;
+
+            font-family: $header-font;
+            font-size: 2.75vh;
+
+            text-decoration: none;
+
+        }
+
+    

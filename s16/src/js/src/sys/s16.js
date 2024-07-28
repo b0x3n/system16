@@ -35,7 +35,7 @@
 //
             'font-family':              'vt323, monospace',
             'font-size':                '22px',
-            'target-id':                'inner',
+            'target-id':                'display',
             'terminal-id':              'terminal',
             'terminal-class':           'terminal',
             'cell-class':               'cell',
@@ -45,7 +45,7 @@
             'blink':                    1000,
 
             'debug':                    false,
-            'be_verbose':               false
+            'be_verbose':               true
 
         
         }
@@ -116,7 +116,7 @@
             __messenger.verbose(`s16 ready, attempting to load exe...`);
 
             __loader.load_file(
-                '/exe/sys16',
+                window.s16_exe_path,
                 function (data) 
                 {
     //  Boot - load the executable into segment

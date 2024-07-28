@@ -172,12 +172,7 @@
             if (! __cell.length)
                 return __display_error(`Can't find test-cell '${_objDisplay['cells']['test-cell']}'`);
 
-            // __cell.css({
-            //     'font-family': _objDisplay['cells']['font-family'],
-            //     'font-size': `${_objDisplay['cells']['font-size']}`
-            // });
-
-            _objDisplay['cells']['width'] = parseInt(__cell.css('width').replace('px', '') - 2);
+            _objDisplay['cells']['width'] = parseInt(__cell.css('width').replace('px', ''));
             _objDisplay['cells']['height'] = (parseInt(_objDisplay['cells']['font-size'].replace('px', '')) - 3);
 
             messenger.verbose(`   Cell width: ${_objDisplay['cells']['width']} px`);
@@ -207,11 +202,6 @@
 
             if (_objDisplay['cursor']['state'])
             {
-                // $(`#${_objDisplay['cells']['id-prefix']}${__row}_${__col}`).css({
-                //     'color': _objDisplay['cursor']['cursor-color'],
-                //     'background-color': _objDisplay['cursor']['cursor-background']
-                // });
-
                 $(`#${_objDisplay['cells']['id-prefix']}${__row}_${__col}`).removeClass('cursor_blink')
                 $(`#${_objDisplay['cells']['id-prefix']}${__row}_${__col}`).addClass('cursor')
                 
@@ -219,11 +209,6 @@
             }
             else
             {
-                // $(`#${_objDisplay['cells']['id-prefix']}${__row}_${__col}`).css({
-                //     'color': _objDisplay['cursor']['cursor-background'],
-                //     'background-color': _objDisplay['cursor']['cursor-color']
-                // });
-                
                 $(`#${_objDisplay['cells']['id-prefix']}${__row}_${__col}`).removeClass('cursor')
                 $(`#${_objDisplay['cells']['id-prefix']}${__row}_${__col}`).addClass('cursor_blink')
 
@@ -250,21 +235,10 @@
                 _objDisplay['cursor']['timer_id'] = false;
             }
 
-            // if (_objDisplay['cursor']['state'])
-            // {
-            //     const   __row = _objDisplay['cursor']['row'];
-            //     const   __col = _objDisplay['cursor']['col'];
-
-                // $(`#${_objDisplay['cells']['id-prefix']}${__row}_${__col}`).css({
-                //     'color': _objDisplay['cells']['cursor-color'],
-                //     'background-color': _objDisplay['cells']['cursor-background']
-                // });
-
-                $(`.${_objDisplay['cells']['class']}`).removeClass('cursor_blink');
-                $(`.${_objDisplay['cells']['class']}`).removeClass('cursor');
-                
-                _objDisplay['cursor']['state'] = 0;
-            // }
+            $(`.${_objDisplay['cells']['class']}`).removeClass('cursor_blink');
+            $(`.${_objDisplay['cells']['class']}`).removeClass('cursor');
+            
+            _objDisplay['cursor']['state'] = 0;
 
         };
 
@@ -381,7 +355,7 @@
                                 background-color:       ${_objDisplay['cells']['background-color']}px;
                             "
                         >
-                            ${__char}
+                            #
                         </div>
                     `;
 

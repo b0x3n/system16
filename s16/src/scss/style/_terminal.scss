@@ -6,6 +6,19 @@
 //
 
 
+    .display
+    {
+
+        position: absolute;
+
+        top: 12vh;
+        left: 1vw;
+        width: 98vw;
+        height: 81vh;
+
+    }
+
+
     .terminal
     {
 
@@ -20,7 +33,7 @@
 
 
         .cell,
-        .test_Cell
+        .test_cell
         {
 
             position: absolute;

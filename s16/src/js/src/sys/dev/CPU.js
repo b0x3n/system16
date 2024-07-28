@@ -169,7 +169,7 @@
     //
             if (
                 operand < __rw_offset       ||
-                operand >= __code_offset
+                (operand >= __code_offset && operand < __exe_size)
             )
                 return false;
             
@@ -341,7 +341,7 @@
             const   __ip                = __get_reg('IP', __segment);
             let     __sp                = __get_reg('SP', __segment);
 
-            if ((__sp - 4) < __exe_size)
+            if ((__sp - 4) < __get_reg('HP'))
                 return `Call error - stack full`;
 
     //  Push the return address onto the stack.
@@ -526,7 +526,7 @@
 
             messenger.verbose(` Executed ${__mnemonic} (${__sp} = ${code_line[2]})`)
 
-            if (__sp < __exe_size)
+            if (__sp < __get_reg('HP'))
                 return `Call error - stack full`;
         
             if (__mnemonic === window.S16_MNEMONIC_PUSH8)
@@ -606,6 +606,58 @@
             __set_reg('SP', __sp, __segment);
 
             messenger.verbose(`Executed ${__mnemonic} (${__sp.toString(2)} = ${code_line[2].toString(2)})`)
+
+            return true;
+
+        };
+
+
+///////////////////////////////////////////////////////////
+//  __execute_par()                                      //
+///////////////////////////////////////////////////////////
+//
+        const   __execute_par           = (
+
+            ram_view,
+            code_line
+
+        ) =>
+        {
+
+            let     __bp                = __get_reg('BP');
+            let     __offset            = __bp + 4;
+
+            if (
+                code_line[0].mnemonic !== window.S16_MNEMONIC_PAR8      &&
+                code_line[0].mnemonic !== window.S16_MNEMONIC_PAR16     &&
+                code_line[0].mnemonic !== window.S16_MNEMONIC_PAR32
+            )
+                return false;
+
+            console.log(`>>> PARAM base offset = ${__offset}, BP=${__bp}`);
+
+            if (code_line[0].mnemonic === window.S16_MNEMONIC_PAR8)
+            {
+                __offset += code_line[3];
+                if (__offset > 0xFFFF)
+                    return `Cannot access parameter ${code_line[3]} at offset ${__offset}, out of range`;
+                ram_view.setUint8(code_line[2], ram_view.getUint8(__offset));
+            }
+            if (code_line[0].mnemonic === window.S16_MNEMONIC_PAR16)
+            {
+                __offset += ((code_line[3] * 2) + 2);
+                if (__offset > 0xFFFE)
+                    return `Cannot access parameter ${code_line[3]} at offset ${__offset}, out of range`;
+                ram_view.setUint16(code_line[2], ram_view.getUint16(__offset, window.little_endian), window.little_endian);
+            }
+            if (code_line[0].mnemonic === window.S16_MNEMONIC_PAR32)
+            {
+                __offset += ((code_line[3] * 4) + 4);
+                if (__offset > 0xFFFC)
+                    return `Cannot access parameter ${code_line[3]} at offset ${__offset}, out of range`;
+                ram_view.setUint32(code_line[2], ram_view.getUint32(__offset, window.little_endian), window.little_endian);
+            }
+
 
             return true;
 
@@ -696,6 +748,13 @@
     //  Is it a pop instruction?
     //
             __return_value              = __execute_pop(ram_view, code_line);
+
+            if (__return_value === true || typeof __return_value === 'string')
+                return __return_value;
+
+    //  Is it a par instruction?
+    //
+            __return_value              = __execute_par(ram_view, code_line);
 
             if (__return_value === true || typeof __return_value === 'string')
                 return __return_value;

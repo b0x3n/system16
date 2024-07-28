@@ -1,0 +1,138 @@
+1 - s16
+
+
+What is this project all about? It's hard to explain in a
+short paragraph or two because there are a lot of different
+components that make up the project.
+
+A long time ago, well over 10 years ago, I wanted to build
+a sandbox environment that simulated a fictional computer,
+the application would then be used as a platform for a
+game.
+
+The game was hacking/cracking based, I wanted a programmable
+environment where you could learn by solving puzzles- a
+virtual machine that's simple and has a retro kind of feel
+to it. I'd previously written shells and simple interpreters
+in c so a VM was something that really appealed to me and
+*seemed* like a fairly trivial thing to build.
+
+I built the project on an old FreeBSD system that ran on
+a PC that was 10 years out of date in c using ncurses, it
+wasn't very good, but it worked to some extent and was fun
+to mess about with. I like that vibe and it shapes a lot
+of how I think about s16 - old terminals, movies like
+Wargames, I have a boner for that aesthetic, sort of 80's
+retro vibe.
+
+Skip forward to now and the idea never really went away,
+I build a basic VM in JavaScript a few years ago to see
+how it would run in the browser and was actually quite
+surprised at the results - not grounbreaking stuff but
+fast enough for it to actually work and be usable.
+
+So here we are, now - s16 has evolved a lot and had a few
+re-writes, but it works and is a project I fully intend to
+continue working on, I have plans for s16 but for now it
+is its own little thing that is bringing me joy.
+
+
+01 - More in-depth stuff
+
+To start off I wanted a 16-bit system, so I had a simple
+CPU with a few 16-bit registers, a single 64k of RAM just
+like a C64 and it functioned in a similar way, it was
+very limited but a good learning process.
+
+Clearly I needed to plan it more, too keen to write the
+code and as the project grew it became harder to write
+and maintain.
+
+I also wasn't too enamoured with it being a command-line
+application, I love a nice terminal but not everyone does,
+it's just not something a lot of people want to use. The
+browser on the other hand is not only ubiquitous, it is
+also something everyone is familiar with and uses.
+
+So I focused on JavaScript which has evolved to a point
+where writing a VM is absolutely possible.
+
+Technically, s16 is 32-bit but for now has some baked-in
+limitations, capping the address space to a max address
+of 0xFFFF (64k).
+
+However we do have 32-bit registers and instructions.
+
+The system is written entirely in JavaScript, even the
+assembler and linker were written in NodeJS which you
+will need if you assemble and link programs for s16.
+
+
+02 - Applications
+
+There are 3 applications, the assembler, the linker and
+the VM.
+
+    System16/s16a/      The assembler
+    System16/s16l/      The linker
+    System16/s16/       The VM
+
+We use the assembler and linker to build executable files
+that s16 can load and run in its environment.
+
+I've designed a simple assembly language, I want the user
+to have as much control over the system as possible so
+decided to build it in a way that mimics a real system,
+we have a CPU module, RAM module, as well as display and
+keyboard modules.
+
+Code is loaded from an executable and structured into
+the RAM module for execution when the s16 system boots
+up, so how do you do that?
+
+    System16/s16/index.html
+
+Is the demo page, it will load and run the s16 system
+and display the s16 terminal where applications are
+executed - make sure you have node installed and cd to:
+
+    System16/s16/
+
+Then run:
+
+    npx serve
+
+The npx application will give you a URL to browse to, this
+takes you to the page where s16 will load and run.
+
+What does it run?
+
+    System16/s16/exe/sys16
+
+For now, it's hard-coded to look for an executable named
+"sys16" in the exe/ directory.
+
+When you navigate to the page, s16 will load and run the
+demo program, you can see the assembly code for the program
+in:
+
+    System16/s16/asm/
+
+And if you want to assemble and link I've written a simple
+BASH script (sys16build) that you can run:
+
+    ./sys16build
+
+This will assemble and link the source files in the asm/
+directory, writing the output to exe/sys16 - now refresh
+the browser and s16 will run again - you can open the
+console (F12) to view some verbose information about
+the execution.
+
+If you want to learn more about the s16 assembly language
+see:
+
+    System16/doc/s16asm/
+
+Here you'll find some tutorials on how to write programs
+and assemble/link them.

@@ -1,0 +1,26 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/asm/lib/hw.s16a                         //
+///////////////////////////////////////////////////////////
+//
+
+
+    .section        code
+
+        function    __monitor_handler
+
+            mov16   FX, %OI;
+            mov8    EX, #AX;
+
+            ret     0;
+
+        end
+
+
+        function    __keyboard_handler
+
+            mov16   FX, %OI;
+
+            ret     0;
+
+        end
+

@@ -5,71 +5,64 @@
 //
 //
 
-    .include lib/io.s16a;
+    .include lib/hw.s16a lib/io.s16a
 
-    ///////////////////////////////////////////////////////
-    //  Hello_world.s16a                                 //
-    ///////////////////////////////////////////////////////
-    //
 
-        .section        ro
+    .section        ro
 
-            m8  buffer[14]      = "Hello, world!";
+        m8          buffer[16]          = "System16 ready ";
+        m8          instruction[20]     = "Type something: ";
+        m8          response[12]        = "You typed: ";
 
-        .section        code
+        m8          __mon_hdl   = 20;
+        m8          __kbd_hdl   = 30;
+
+
+    .section        rw
+
+            m8      __input_buffer[256];
+
+
+    .section        code
 
         function    _main
 
+            dev     1, __mon_hdl, __monitor_handler;
+            dev     2, __kbd_hdl, __keyboard_handler;
 
-            dev     1, 4, __monitor;
-            dev     2, 2, __keyboard;
+            push32  buffer;
 
-            mov16   OI, 1;
-            int     2;
+            call    clear;
+            call    print;
 
-            int     4;
+            mov32   CX, 3;
+            mov32   DX, 2;
+            mov16   OI, 5;
+            int     __mon_hdl;
 
-            mov32   AX, buffer;
-            mov16   OI, 2;
+            pop32   AX;
+            push32  instruction;
+
+            call    print;
+
+            push32  0;
+            push32  255;
+            push32  __input_buffer;
+
+            call    getline;
+
+            mov32   CX, 4;
+            mov32   DX, 2;
+            mov16   OI, 5;
+            int     __mon_hdl;
+
+            push32  response;
+            call    print;
+            pop32   CX;
             
-        call putchar;
+            push32  __input_buffer;
+            call    print;
 
-        @next_byte
-
-            int     4;
-
-        //  Now we will add 1 to AX to point to the
-        //  next byte in the buffer.
-            add32  AX, 1;
-
-        //  Is it the 0 byte?
-            cmp8   #AX, 0;
-            jne     next_byte
-
-            ret     1;
-        end
-
-        function    __monitor
-
-        //  The monitor always wants the instruction to
-        //  be in FX.
-            mov16   FX, %OI;
-
-        //  Move the character we want to print into
-        //  the EX register - note we use a mov8 since
-        //  the display expects this to be an 8-bit
-        //  ASCII code.
-            mov8 EX, #AX;
-
-        //  Return 0 (success) - as soon as we return, 
-        //  the display module will be invoked and will
-        //  grab the register values and act accordingly.
-
-        end
-
-
-        function    __keyboard
-
-            mov16  FX, %OI;
+            ret     0;
 
         end

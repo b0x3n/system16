@@ -46,4 +46,6 @@
     .inner
     {
         @include __wrapper(none, none);
+
+        padding: 0px 1vw;
     }

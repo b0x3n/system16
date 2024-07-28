@@ -46,7 +46,7 @@
     global.S16_MEMSIZE                  = (
 
         type,
-        size
+        size                            = 1
 
     ) =>
     {

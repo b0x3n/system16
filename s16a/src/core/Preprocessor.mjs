@@ -483,7 +483,7 @@
                     continue;
                 }
 
-                __token_filters.filter_all(__tokens);
+                __token_filters.filter_all(__tokens, true);
 
                 if (__tokens[2] === global.S16A_KEYWORD_END)
                     break;

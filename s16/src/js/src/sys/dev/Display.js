@@ -38,6 +38,18 @@
         const   _initialise_display     = () =>
         {
 
+            window.console_enabled = false;
+
+            $(`.${objConfigure['terminal-class']}`).on('mouseenter', () => { 
+
+                window.console_enabled = true;
+            });
+
+            $(`.${objConfigure['terminal-class']}`).on('mouseleave', () => {
+                
+                window.console_enabled = false;
+            });
+
         };
 
 
@@ -205,16 +217,16 @@
             }
 
     //  5 is used to move the cursor position, the
-    //  row should be set in DX and the column in
-    //  FX.
+    //  row should be set in CX and the column in
+    //  DX.
     //
     //  If either the row or column are out of bounds
     //  the RT register is set to 1.
     //
             if (__instruction === 5)
             {
-                const   __row           = ram_view.getUint16(window.S16_REG['DX'], window.little_endian);
-                const   __col           = ram_view.getUint16(window.S16_REG['EX'], window.little_endian);
+                const   __row           = ram_view.getUint16(window.S16_REG['CX'], window.little_endian);
+                const   __col           = ram_view.getUint16(window.S16_REG['DX'], window.little_endian);
 
                 if (__move_cursor(__row, __col) === false)
                     ram_view.setUint8(window.S16_REG['RT'], 1);

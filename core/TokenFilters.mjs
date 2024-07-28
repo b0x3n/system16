@@ -213,14 +213,48 @@
 //  _filter_variables()                                  //
 ///////////////////////////////////////////////////////////
 //
-        const   _filter_variables       = tokens =>
+        const   _filter_variables       = (
+            
+            tokens,
+            is_code_section             = false
+
+        ) =>
         {
+
+            let     __start_param       = 3;
+
+            if (is_code_section)
+                __start_param = 2;
 
             for (let token_no = 0; token_no < tokens.length; token_no++)
             {
 
                 let     _token          = tokens[token_no];
                 let     _index          = 0;
+
+    //  If it's not a memory declaration, e.g:
+    //
+    //      m8  buffer[10]  = "buffer";
+    //
+    //  We want to translate m8, m16 and m32 tokens to
+    //  the actual size, so:
+    //
+    //      m8  sizeof_m8   = m8;
+    //      m16 sizeof_m16  = m16;
+    //      m32 sizeof_m32  = m32;
+    //
+    //  Is the same as doing:
+    //
+    //      m8  sizeof_m8   = 1;
+    //      m16 sizeof_m16  = 2;
+    //      m32 sizeof_m32  = 4;
+    //
+                if (token_no >= __start_param)
+                {
+                    if (global.S16_MEMTYPES.indexOf(_token) >= 0)
+                        tokens[token_no] = global.S16_MEMSIZE(_token).toString();
+                    continue;
+                }
 
                 if (typeof _token !== 'string')
                     continue;
@@ -288,11 +322,16 @@
 //  _filter_all()                                        //
 ///////////////////////////////////////////////////////////
 //
-        const   _filter_all             = tokens =>
+        const   _filter_all             = (
+            
+            tokens,
+            is_code_section             = false
+
+        ) =>
         {
 
             _filter_commas(tokens);
-            _filter_variables(tokens);
+            _filter_variables(tokens, is_code_section);
             _filter_expressions(tokens);
 
         };

@@ -32,6 +32,11 @@
     global.S16_MNEMONIC_POP32           = 'pop32';
 
 
+    global.S16_MNEMONIC_PAR8            = 'par8';
+    global.S16_MNEMONIC_PAR16           = 'par16';
+    global.S16_MNEMONIC_PAR32           = 'par32';
+
+
     global.S16_MNEMONIC_ADD8            = 'add8';
     global.S16_MNEMONIC_ADD16           = 'add16';
     global.S16_MNEMONIC_ADD32           = 'add32';
@@ -128,6 +133,20 @@
         [global.S16_MNEMONIC_POP32]:    {
                                             'opcode':       0x2F,
                                             'params':       [ 4 ]
+                                        },
+
+    //  
+        [global.S16_MNEMONIC_PAR8]:     {
+                                            'opcode':       0x30,
+                                            'params':       [ 1, 4 ]
+                                        },
+        [global.S16_MNEMONIC_PAR16]:    {
+                                            'opcode':       0x31,
+                                            'params':       [ 2, 4 ]
+                                        },
+        [global.S16_MNEMONIC_PAR32]:    {
+                                            'opcode':       0x32,
+                                            'params':       [ 4, 4 ]
                                         },
 
 

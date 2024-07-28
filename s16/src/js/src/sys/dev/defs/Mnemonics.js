@@ -32,6 +32,11 @@
     window.S16_MNEMONIC_POP32           = 'pop32';
 
 
+    window.S16_MNEMONIC_PAR8            = 'ins8';
+    window.S16_MNEMONIC_PAR16           = 'ins16';
+    window.S16_MNEMONIC_PAR32           = 'ins32';
+
+
     window.S16_MNEMONIC_ADD8            = 'add8';
     window.S16_MNEMONIC_ADD16           = 'add16';
     window.S16_MNEMONIC_ADD32           = 'add32';
@@ -126,6 +131,20 @@
         [window.S16_MNEMONIC_POP32]:    {
                                             'opcode':       0x2F,
                                             'params':       [ 4 ]
+                                        },
+
+    //  
+        [global.S16_MNEMONIC_PAR8]:     {
+                                            'opcode':       0x30,
+                                            'params':       [ 1, 4 ]
+                                        },
+        [global.S16_MNEMONIC_PAR16]:    {
+                                            'opcode':       0x31,
+                                            'params':       [ 2, 4 ]
+                                        },
+        [global.S16_MNEMONIC_PAR32]:    {
+                                            'opcode':       0x32,
+                                            'params':       [ 4, 4 ]
                                         },
 
 
@@ -289,6 +308,20 @@
         [`__op_${0x2F}`]:               {
                                             'mnemonic':     window.S16_MNEMONIC_POP32,
                                             'params':       [ 4 ]
+                                        },
+
+
+        [`__op_${0x30}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_PAR8,
+                                            'params':       [ 1, 4 ]
+                                        },
+        [`__op_${0x31}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_PAR16,
+                                            'params':       [ 2, 4 ]
+                                        },
+        [`__op_${0x32}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_PAR32,
+                                            'params':       [ 4, 4 ]
                                         },
 
 

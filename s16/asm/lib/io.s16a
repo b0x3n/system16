@@ -2,25 +2,217 @@
 //  System16/s16/asm/lib/io.s16a                         //
 ///////////////////////////////////////////////////////////
 //
+//  Some basic I/O operations, print, clear, etc.
+//
+
+    .section            rw
+
+        m32             __str_ptr;
 
 
     .section            code
 
-        function        putchar
 
+///////////////////////////////////////////////////////////
+//  Clear                                                //
+///////////////////////////////////////////////////////////
+//
+//  You don't need to pass any params.
+//
+        function        clear
+
+            mov16       OI, 1;
+            int         __mon_hdl;
+
+            ret 0;
+
+        end
+
+
+///////////////////////////////////////////////////////////
+//  print                                                //
+///////////////////////////////////////////////////////////
+//
+//  Expects us to push the address of the buffer to print
+//  onto the stack.
+//
+//  Obviously expects a 0 terminated string.
+//
+        function        print
+
+    //  Create a new stack frame.
+    //
             push32      %BP;
             mov32       BP, %SP;
 
-            push32      10;
-            push32      20;
+    //  Get parameter 0 from the stack (buffer address)
+    //  into the __str_ptr - we'll use this to iterate
+    //  over the buffer.
+    // 
+            par32        __str_ptr, 1;
 
-            mov32       FX, 10;
+    //  Prepare OI with the value 2, this is the putchar
+    //  opcode for the display.
+    //
+            mov16       OI, 2;
 
-            pop32       EX;
-            pop32       DX;
+@__print_loop
+
+    //  Look for the 0 byte.
+    //
+            cmp8        #__str_ptr, 0;
+            je          __end_print_loop;
+
+    //  The __mon_hdl (__monitor_handler, see io.s16a)
+    //  will copy AX into the EX register for us, we
+    //  just pop the next byte of the string into AX
+    //  then interrupt the display module.
+    //
+            mov8        AX, %__str_ptr;
+            int         __mon_hdl;
+
+    //  Increase the pointer offset and loop back
+    //  to the strt for the next byte.
+    //
+            add32        __str_ptr, 1;
+            jmp         __print_loop;
+
+@__end_print_loop
 
             pop32       BP;
 
-            ret         1;
+            ret         0;
 
         end
+
+
+///////////////////////////////////////////////////////////
+// getline                                               //
+///////////////////////////////////////////////////////////
+//
+// Read a line of input from the keyboard - needs a few
+// parameters pushed in this order:
+//
+//      Mask character, we can set this to 0 if we want
+//      to see our input being echoed to the terminal,
+//      if we set it greater than zero its a mask byte
+//      used to hide the input - like * to hide a
+//      password, for example.
+//
+//      Max bytes to read - getline will 0 terminate
+//      the string but the 0 is not included in the
+//      size, so if we want to store 10 bytes we need
+//      this to be at least 11.
+//
+//      Buffer pointer - this is a pointer to the buffer
+//      we want to store the line of input in, obviously
+//      it needs to be large enough (max bytes + 1) to
+//      store the result.
+//
+//      Always returns 0.
+//
+
+        .section        ro
+
+                m8      __enter_key             = 13;
+
+
+        .section        rw
+
+                m8      __mask_byte;
+                m32     __max_bytes;
+
+                m32     __buffer_ptr;
+
+                m32     __total_bytes;
+
+
+        .section        code
+
+                function        getline
+
+                        push32  %BP;
+                        mov32   BP, %SP;
+
+                //      Grab our parameters.
+                //
+                        par32   __mask_byte, 3;
+                        par32   __max_bytes, 2;
+                        par32   __buffer_ptr, 1;
+
+                //      Count the number of bytes we read.
+                //
+                        mov32   __total_bytes, 0;
+
+                        
+@__getline_loop
+
+                //      Interrupting the keyboard device module
+                //      with an opcode of 1 tells it to read a
+                //      single byte of input - it will block
+                //      until a key is pressed.
+                //
+                        mov16   OI, 1;
+
+                //      Get the next byte from the keyboard,
+                //      the byte is returned in FX...
+                //
+                        int     __kbd_hdl;
+
+                //      If the enter key is pressed the key code
+                //      13 will be set in FX.
+                //
+                        cmp8    %FX, %__enter_key;
+                        je      __end_getline_loop;
+
+                //      Bounds check - if __total_bytes is
+                //      >= __max_bytes we bail.
+                //
+                        cmp32   %__max_bytes, %__total_bytes;
+                        jge     __end_getline_loop;
+
+                //      Add the byte to the buffer and point to
+                //      the next byte - we'll pop the newly read
+                //      byte into AX for the display interrupt
+                //      when (if) we echo the byte.
+                //
+                        mov8    %__buffer_ptr, %FX;
+                        mov8    AX, %__buffer_ptr;
+
+                        add32   __buffer_ptr, 1;
+                        add32   __total_bytes, 1;
+
+
+                //      Do we print the byte to the display? If
+                //      __buffer_ptr is 0 then yes.
+                //
+                        cmp8    %__mask_byte, 0;
+                        je      __print_byte;
+
+                //      We print the mask byte instead of the input
+                //      byte.
+                //
+                        mov8    EX, %__mask_byte;
+
+@__print_byte
+
+                //      Print the byte and loop.
+                //
+                        mov16   OI, 2;
+                        int     __mon_hdl;
+
+                        jmp     __getline_loop;
+
+
+@__end_getline_loop
+
+                //      0-terminate the buffer.
+                //
+                        add32   __buffer_ptr, 1;
+                        mov8    %__buffer_ptr, 0;
+
+                        pop32   BP;
+
+                        ret     0;
+
+                end
