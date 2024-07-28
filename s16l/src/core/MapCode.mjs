@@ -31,6 +31,7 @@
 
 
         let     __code_offset           = objExe.code_offset;
+        let     __code_length           = __code_offset;
 
 
         const   __dst_view              = new DataView(objExe.exe_buffer);
@@ -173,6 +174,7 @@
 
             __dst_view.setUint16(__code_offset, 0, global.little_endian);
             __code_offset += 2;
+            __code_length += __code_offset;
 
             messenger.verbose(`   end (0) 2 bytes @ offset ${__line_offset}\n  Done mapping ${__label}, ${line_no} total lines, ${__code_offset - __start_offset} total bytes @ offset ${__start_offset}.\n`);
 
@@ -200,19 +202,19 @@
     //  entry point and will be processed first so that
     //  the code offset in the header points to _main.
     //
-            const   __main_index        = __section.label.indexOf('_main');
-            
-            if (__main_index < 0)
-                messenger.error(`Error: No _main function exists`);
+            // const   __main_index        = __section.label.indexOf('_main');
+            //     messenger.error(`Error: No _main function exists`);
 
-            __map_function(__main_index);
-
+            // __map_function(__main_index);
+  
+            // if (__main_index < 0)
+          
     //  Map the remaining functions.
     //
             __section.label.forEach((label, index) => {
 
-                if (label === '_main')
-                    return;
+                // if (label === '_main')
+                //     return;
 
                 __map_function(index);
 

@@ -385,7 +385,7 @@
                 'label',
                 'm32',
                 2,
-                { 'function': function_name, 'offset': (function_size - 2) }
+                { 'function': function_name, 'offset': (function_size + __code_size - 2) }
             );
 
             messenger.verbose(`${__indent_output(include_depth)}   Declared address label ${tokens[3]} at offset ${function_size}\n`);
@@ -448,6 +448,8 @@
             const   _addr               = [];
 
             let     __function_size     = 2;
+
+            let     __returns           = false;
 
             if (_tokens[2] !== global.S16A_KEYWORD_FUNCTION)
                 messenger.file_error(_tokens, `Unexpected token '${_tokens[2]}'`);
@@ -516,10 +518,20 @@
                 _addr.push(__line_size);
                 _data.push(__tokens);
 
+                if (__tokens[2] === global.S16_MNEMONIC_RET)
+                    __returns = true;
+
                 __function_size += __line_size;
 
                 line_no++;
 
+            }
+
+            if (! __returns)
+            {
+                _data.push([ _tokens[0], _tokens[1], global.S16_MNEMONICS['ret'].opcode, "0"]);
+                _addr.push(3);
+                __function_size += 3;
             }
 
     //  Any code for the function will be collected in

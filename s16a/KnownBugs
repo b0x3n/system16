@@ -1,0 +1,64 @@
+The s16 VM:
+
+Functions and return
+
+    Functions called from main work if we end with a
+    ret (return) instruction:
+
+        function blah
+            ret 1;
+        end
+
+    But won't return properly if we omit the ret.
+
+    So long as we put a ret statement at the end of
+    every function it's fine, if we don't the program
+    terminates when it reaches the end of the function
+    code - needs attention.
+
+
+Endianess
+
+    Maybe I'm misunderstanding something - you can use
+    the --byte-order option with the linker to tell
+    it what byte-order to write the executable file in.
+
+    I'm using the ArrayBuffer to allocate RAM segments
+    and passing a boolean (global.little_endian) which
+    is set to true if --byte-order 'little-endian' is
+    specified at the command line.
+
+    Now the weird thing is, JavaScript writes ArrayBuffer
+    in big-endian by default, we specify little-endian
+    by passing the boolean true which seems to working
+    just fine.
+
+    I can assemble and link an exe and it will be in
+    little-endian byte-ordering, and the s16 VM seems
+    happy with this.
+
+    Yet for some reason when I use big-endian - the
+    native read/write mode...it doesn't work!
+
+    Needs addressing.
+
+
+The s16a assembler and linker
+
+    There are a few little bugs, to be honest I'm probably
+    going to re-write both of these once the VM is stable,
+    for now they just exist so that I can build and test
+    executables in s16.
+
+    The assembler doesn't like file names and paths because
+    I'm running pre-processor directives through a bunch of
+    filters.
+
+    In all fairness this should have probably been done
+    later during linking, it'd make more sense.
+
+    There are other small bugs but I'm not too fussed, as
+    long as I can assemble and run code I'm happy enough
+    for now...will update as things progress.
+
+    

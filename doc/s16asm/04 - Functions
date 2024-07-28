@@ -231,8 +231,8 @@ More instructions will be added over time, we're really
 interested in instructions 1 and 2 at this stage.
 
 We also need to be aware of the particular device module
-and what size of parameters it expects - the instruction
-is a 16-bit value.
+and what size of parameters it expects - the display
+expects a 16-bit instruction.
 
 The first thing we need to do is put the instruction in
 the OI (output interrupt) register, so if we want to
