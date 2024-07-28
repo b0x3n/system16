@@ -339,7 +339,6 @@
             const   __exe_size          = ram_view.getUint32(window.S16_HEADER_EXESIZE, window.little_endian);
 
             const   __ip                = __get_reg('IP', __segment);
-            //let     __bp                = __get_reg('BP', __segment);
             let     __sp                = __get_reg('SP', __segment);
 
             if ((__sp - 4) < __exe_size)
@@ -347,19 +346,15 @@
 
     //  Push the return address onto the stack.
     //
-            //__set_reg('BP', __ip);
-            //ram_view.setUint32(__bp, __ip, window.little_endian);
             ram_view.setUint32(__sp, __ip, window.little_endian);
 
-            console.log(`PUSHED RETURN ADDRESS ${__ip} at position ${__sp.toString(16)} on the stack`);
-
-
-            //ram_view.setUint32(window.S16_REG['BP'], __ip, window.little_endian);
             __sp -= 4;
+
             __set_reg('SP', __sp);
             __set_reg('IP', code_addr, __segment);
 
             __call_depth++;
+
             messenger.verbose(`>> ${ram_view.getUint32(__sp + 4, window.little_endian)} <<Executed call instruction to address ${code_addr}, return address ${__ip}, call depth = ${__call_depth}, BP == ${__get_reg('BP').toString(16)}`);
 
             return true;
@@ -416,20 +411,15 @@
     //  Pop the return address from the stack into the
     //  IP register.
     //
-    // if (__call_depth >= 1)
-    // {
+            if ((__sp + 4) > 0xFFFF && __call_depth > 1)
+                return `STACK`;
+            else if (__call_depth > 1)
+            {
+                __sp += 4;
+                __set_reg('SP', __sp);
+                __set_reg('IP', ram_view.getUint32(__sp, window.little_endian));
+            }    
 
-        if ((__sp + 4) > 0xFFFF && __call_depth > 1)
-            return `STACK`;
-        else if (__call_depth > 1)
-        {
-            __sp += 4;
-            __set_reg('SP', __sp);
-            __set_reg('IP', ram_view.getUint32(__sp, window.little_endian));
-
-            console.log(`||||||||||||||||||||| POPPED BP ${__get_reg('BP').toString(16)} FRAM STACK AT OFFSET ${__sp.toString(16)} = IP = ${__get_reg('IP').toString(16)}`);
-        }    
-    // }
             messenger.verbose(`Executed return to ${__get_reg('IP')}`);
 
             __call_depth--;
@@ -556,6 +546,7 @@
                 return false;
 
             __set_reg('SP', __sp, __segment);
+
             return true;
 
         };
@@ -578,18 +569,16 @@
             let     __sp                = __get_reg('SP', __segment);
             let     __mnemonic          = code_line[0].mnemonic;
             
-            // if ((__sp + 4) > 0xFFFC)
-            //     return `Cannot pop - bottom of stack reached`;
-
-
-
-
             if (__mnemonic === window.S16_MNEMONIC_POP8)
                 __sp += 1;
             if (__mnemonic === window.S16_MNEMONIC_POP16)
                 __sp += 2;
             if (__mnemonic === window.S16_MNEMONIC_POP32)
                 __sp += 4;    
+
+            if (__sp > 0xFFFF)
+                return `Cannot pop - bottom of stack reached`;
+
             if (__mnemonic === window.S16_MNEMONIC_POP8)
             {
                 if (! __is_writeable(ram_view, code_line[2]))
@@ -615,7 +604,8 @@
                 return false;
 
             __set_reg('SP', __sp, __segment);
-            //messenger.verbose(`Executed ${__mnemonic} (${__sp.toString(2)} = ${code_line[2].toString(2)})`)
+
+            messenger.verbose(`Executed ${__mnemonic} (${__sp.toString(2)} = ${code_line[2].toString(2)})`)
 
             return true;
 
@@ -830,7 +820,6 @@
 
             }
 
-
             __set_reg('IP', (__ip + __line_size), __segment);
 
             messenger.verbose(` ${__opcode} (${__objMnemonic.mnemonic}) ${__operands} @ offset ${__ip}`);
@@ -901,9 +890,6 @@
             if (__code_line === true)
                 return true;
 
-            // if (typeof __code_line === 'undefined')
-            //     return false;
-
     //  False is returned when we come to the end of
     //  the current function.
     //
@@ -971,7 +957,15 @@
                 objConfigure['debug'] === 'step'
             )
             {
-    //  Run in debug mode.
+
+    ///////////////////////////////////////////////////////
+    //  Run in debug mode - haven't tested this much and
+    //  made some changes since - might not work...
+    //
+    //  Was implemented early on so I could step through
+    //  and execute code one line at a time.
+    //
+    //  Will come back to this.
     //
                 let __running = true;
 

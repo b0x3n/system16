@@ -376,8 +376,6 @@
             if (_objLabel)
                 messenger.file_error(tokens, `Label '${tokens[3]}' already exists (${_objLabel.type} ${_objLabel.label}[${_objLabel.size}] in ${_objLabel.type})`)
 
-    //  
-    //
             _objSections[__sect('env')].set(
                 tokens[3],
                 tokens[0],

@@ -61,10 +61,6 @@
 
             if (__label === "_main")
                 objExe.main_offset = __code_offset;
-                //console.log(`--- SET MAIN OFFSET: ${objExe.main_offset}`);
-                
-            // console.log(__data);
-            // process.exit();
 
             messenger.verbose(`  Mapping function ${__label}:\n`);
 
@@ -109,7 +105,6 @@
                     
                     if (typeof __operand === 'string')
                     {
-
                         __translator.translate_token(__tokens, token_no);
 
                         if (__modifier === global.S16_ADDRMODE_INDIRECT)
@@ -143,10 +138,8 @@
 
                 for (let param_no = 0; param_no < _objMnemonic.params.length; param_no++)
                 {
-
                     if (typeof __tokens[(param_no + 3)] === 'string')
                         __translator.translate_token(__tokens, (param_no + 3));
-
 
                     if (_objMnemonic.params[param_no] === 1)
                     {
@@ -165,7 +158,6 @@
                         __code_offset += 4;
                         __line_size += 4;
                     }
-
                 }
 
                 messenger.verbose(` (${__line_size} bytes) @ offset ${__line_offset} (modified opcode ${__opcode.toString(2)})\n`);

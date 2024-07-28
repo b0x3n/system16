@@ -56,8 +56,6 @@
 
                 const   _section        = objSections[section_no].objSection;
 
-                //console.log(_section)
-
                 _section.offsets    = [];
 
                 _section.label.forEach((label, index) => {
@@ -75,34 +73,21 @@
 
                     for (let param_no = 0; param_no < __data.length; param_no++)
                     {
-                        //console.log(`${label}[${param_no}] @ offset ${__data_offset}`)
 
                         if (! param_no)
                             __start_offset = __data_offset;
 
                         if (typeof __data[param_no] === 'string' && ! /^[0-9]+$/.test(__data[param_no]))
                         {
-                            //    __data[param_no] = global.S16_REG.__data[param_no];
-                        
-                            // if (global.S16_REG.hasOwnProperty(__data[param_no]))
-                            //     //messenger.file_error([ __path, __line ], `Unexpected string token '${__data[param_no]}'`);
-                            //     __data[param_no] = global.S16_REG[__data[param_no]];
-                            // else
-                            // {
-                                const   __tokens = [ __path, __line, __data[param_no] ];
+                            const   __tokens = [ __path, __line, __data[param_no] ];
 
-                                __translator.translate_token(
-                                    __tokens,
-                                    2
-                                );
+                            __translator.translate_token(
+                                __tokens,
+                                2
+                            );
 
-                                __data[param_no] = __tokens[2]
-                            // }
-
+                            __data[param_no] = __tokens[2]
                         }
-
-                        // if (global.S16_REG.hasOwnProperty(__data[param_no]))
-                        //     __data[param_no] = global.S16_REG[__data[param_no]];
 
                         if (__type === global.S16_MEMTYPE_M8)
                         {
@@ -121,10 +106,10 @@
                             __data_offset += 4;
                             continue;
                         }
+
                     }
                     
                     messenger.verbose(`   Wrote ${__type} ${label}[${__size}] (${__length} bytes): ${__data} @ offset ${__start_offset}\n`);
-
 
                 });
 

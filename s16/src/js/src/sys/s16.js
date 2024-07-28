@@ -45,7 +45,7 @@
             'blink':                    1000,
 
             'debug':                    false,
-            'be_verbose':               true
+            'be_verbose':               false
 
         
         }

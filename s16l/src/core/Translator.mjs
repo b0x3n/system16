@@ -93,29 +93,10 @@
                 if (_size >= objSections[_section].objSection.size[_index])
                     messenger.file_error(tokens, `Index ${_size} out of bounds for label '${tokens[token_no]}' (size of ${tokens[token_no]} = ${objSections[_section].objSection.size[_index]})`);
 
-                // if  (_section === 4)
-                // {
-                //     messenger.file_error(tokens, `Reference to ENV label '${tokens[token_no]}'`);
-                // }
-                
                 let     _offset;
 
                 if (_section === 3)
-                {
-                    // const   __calculate_offset  = i =>
-                    // {
-                    //     let _acc = 0;
-
-                    //     for (let j = 0; j < _index; j++)
-                    //         _acc += objSections[_section].objSection.length[_index];
-                    //     return _acc;
-                    // };
-                  //  console.log(`CODE OFFSET = ${line_offset}`)
-                    _offset = (objSections[_section].objSection.mode[_index] + objExe.code_offset);
-                    //_offset = code_length;
-                    // console.log(`||| --- Address of ${__token} = ${_offset} `)
-                    // console.log(objSections[_section].objSection)
-                }    
+                    _offset = (objSections[_section].objSection.mode[_index] + objExe.code_offset);  
                 else if (_section === 4)
                 {
                     const   __mode = objSections[_section].objSection.mode[_index];
@@ -123,8 +104,8 @@
 
                     if (__mode !== 'label')
                         messenger.file_error(tokens, `Reference to ENV label '${tokens[token_no]}'`);
+                    
                     _offset = (__data + objExe.code_offset);
-                    console.log(`Offset of label ${__token} = ${_offset}`)
                 }
                 else
                 {
