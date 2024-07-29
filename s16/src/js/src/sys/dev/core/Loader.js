@@ -31,6 +31,7 @@
             const req = new XMLHttpRequest();
 
             req.open("GET", file_name, false);
+            req.contentType = 'utf-8';
 
             req.onload = (event) => {
                 const   string_2_arraybuffer = str =>
@@ -47,10 +48,6 @@
                 };
 
                 let array_buffer    = string_2_arraybuffer(req.response);
-
-                if (location.hostname !== '127.0.0.1' && location.hostname !== 'localhost')
-                    array_buffer = atob(array_buffer);
-
                 array_buffer        = new Uint8Array(array_buffer);
 
                 successCallback(array_buffer);
