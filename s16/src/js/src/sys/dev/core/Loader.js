@@ -31,6 +31,7 @@
             const req = new XMLHttpRequest();
 
             req.open("GET", file_name, true);
+            req.dataType = 'json';
 
             req.onload = (event) => {
                 let arrayBuffer = req.response;
