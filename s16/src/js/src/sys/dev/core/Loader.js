@@ -27,6 +27,12 @@
 
         ) =>
         {
+            function b64DecodeUnicode(str) {
+                // Going backwards: from bytestream, to percent-encoding, to original string.
+                return decodeURIComponent(atob(str).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+            }
 
             const req = new XMLHttpRequest();
 
@@ -50,7 +56,9 @@
 
                 //if (arrayBuffer) {
                 //alert(window.location.href)
-                // if (window.location.href === "http://localhost:3000/")
+                if (window.location.href !== "http://localhost:3000/")
+                    arrayBuffer = b64DecodeUnicode(arrayBuffer);
+
                      arrayBuffer = new Uint8Array(arrayBuffer);
                 // else
                 //     arrayBuffer = new Uint8Array(arrayBuffer);
