@@ -31,7 +31,8 @@
             const req = new XMLHttpRequest();
 
             req.open("GET", file_name, false);
-            req.contentType = 'utf-8';
+            //req.contentType = 'utf-8';
+            req.overrideMimeType('text/xml; utf-8');
 
             req.onload = (event) => {
                 const   string_2_arraybuffer = str =>
