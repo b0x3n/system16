@@ -33,19 +33,33 @@
             req.open("GET", file_name, false);
 
             req.onload = (event) => {
-                const   string_2_arraybuffer = str =>
-                {
-                    var buf         = new ArrayBuffer(str.length*2);
-                    var bufView     = new Uint16Array(buf);
+                const   string_2_arraybuffer = (
+                    
+                    str,
+                    size                        = 2
 
-                    for (var i = 0, strLen = str.length; i < strLen; i++) {
-                        bufView[i]  = str.charCodeAt(i);
-                    }
+                ) =>
+                {
+                    var buf         = new ArrayBuffer(str.length * size);
+                    var buf_view;
+                    
+                    if (size === 1)
+                        buf_view = new Uint8Array(buf);
+                    else
+                        buf_view = new Uint16Array(buf);
+
+                    for (var i = 0, str_len = str.length; i < str_len; i++)
+                        buf_view[i]  = str.charCodeAt(i);
 
                     return buf;
                 };
 
-                let array_buffer    = string_2_arraybuffer(req.response);
+                let __size = 2;
+
+                if (window.location.href.substr(0, 14) === 'https://b0x3n.')
+                    __size = 1;
+
+                let array_buffer    = string_2_arraybuffer(req.response, __size);
                 array_buffer        = new Uint8Array(array_buffer);
 
                 successCallback(array_buffer);
