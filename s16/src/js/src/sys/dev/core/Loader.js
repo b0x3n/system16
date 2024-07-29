@@ -36,9 +36,6 @@
                 const   string_2_arraybuffer = str =>
                 {
 
-                    if (location.hostname !== '127.0.0.1' && location.hostname !== 'localhost')
-                        str = atob(str);
-
                     var buf         = new ArrayBuffer(str.length * 2);
                     var bufView     = new Uint16Array(buf);
 
@@ -50,6 +47,10 @@
                 };
 
                 let array_buffer    = string_2_arraybuffer(req.response);
+
+                if (location.hostname !== '127.0.0.1' && location.hostname !== 'localhost')
+                    array_buffer = atob(array_buffer);
+
                 array_buffer        = new Uint8Array(array_buffer);
 
                 successCallback(array_buffer);
