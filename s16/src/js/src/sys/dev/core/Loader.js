@@ -34,15 +34,28 @@
             req.responseType = "arraybuffer";
 
             req.onload = (event) => {
-                const arrayBuffer = req.response; // Note: not req.responseText
+                let arrayBuffer = req.response; // Note: not req.responseText
+
+                function stringToArrayBuffer(str) {
+                    var buf = new ArrayBuffer(str.length);
+                    var bufView = new Uint8Array(buf);
                 
-                if (arrayBuffer) {
+                    for (var i=0, strLen=str.length; i<strLen; i++) {
+                        bufView[i] = str.charCodeAt(i);
+                    }
+                
+                    return buf;
+                }
+                //if (arrayBuffer) {
+                //alert(window.location.href)
+                if (window.location.href != "http://localhost:3000/")
+                    arrayBuffer = stringToArrayBuffer(arrayBuffer);
                     const byteArray = new Uint8Array(arrayBuffer);
                     successCallback(byteArray);
-                }
+                //}
             };
 
-            req.send();
+            req.send(null);
 
         };
 

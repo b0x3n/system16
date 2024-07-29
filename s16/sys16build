@@ -15,13 +15,4 @@ else
     ENDIANESS=$1;
 fi
 
-<<<<<<< HEAD
-node ../s16l/s16l asm/sys16.s16o --out exe/sys16.exe --byte-order $ENDIANESS
-
-if [ "$?" -ne 0 ]; then
-    echo -en "\nThere was an error...\n";
-    exit 1;
-fi
-=======
 node ../s16l/s16l asm/sys16.s16o --out exe/sys16.s16 --byte-order $ENDIANESS
->>>>>>> 1698e4d7f876d56dcd429dd59cddd55ea4c9ca92
