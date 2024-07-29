@@ -37,8 +37,8 @@
                 {
 
                     if (location.hostname !== '127.0.0.1' && location.hostname !== 'localhost')
-                        array_buffer = atob(array_buffer);
-                    
+                        str = atob(str);
+
                     var buf         = new ArrayBuffer(str.length * 2);
                     var bufView     = new Uint16Array(buf);
 
