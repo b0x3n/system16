@@ -30,27 +30,25 @@
 
             const req = new XMLHttpRequest();
 
-            req.open("GET", file_name, true);
-            //req.dataType = 'text';
-            //req.responseType = 'text';
+            req.open("GET", file_name, false);
 
             req.onload = (event) => {
-                let arrayBuffer = req.response;
-                
-                // if (window.location.href.substr(0, 14) === 'https://github')
-                //    arrayBuffer = req.response;
-                function str2ab(str) {
-                    var buf = new ArrayBuffer(str.length*2);
-                    var bufView = new Uint16Array(buf);
-                    for (var i=0, strLen=str.length; i<strLen; i++) {
-                      bufView[i] = str.charCodeAt(i);
-                    }
-                    return buf;
-                  }
+                const   string_2_arraybuffer = str =>
+                {
+                    var buf         = new ArrayBuffer(str.length*2);
+                    var bufView     = new Uint16Array(buf);
 
-                arrayBuffer = str2ab(arrayBuffer);
-                arrayBuffer = new Uint8Array(arrayBuffer);
-                successCallback(arrayBuffer);
+                    for (var i = 0, strLen = str.length; i < strLen; i++) {
+                        bufView[i]  = str.charCodeAt(i);
+                    }
+
+                    return buf;
+                };
+
+                let array_buffer    = string_2_arraybuffer(req.response);
+                array_buffer        = new Uint8Array(array_buffer);
+
+                successCallback(array_buffer);
             };
 
             req.send(null);
