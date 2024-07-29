@@ -35,8 +35,8 @@
             req.responseType = "arraybuffer";
 
             req.onload = (event) => {
-                //let arrayBuffer = req.response; // Note: not req.responseText
-                let arrayBuffer = Uint8Array.from(request.response, c => c.charCodeAt(0));
+                let arrayBuffer = req.response; // Note: not req.responseText
+                //let arrayBuffer = Uint8Array.from(req.response, c => c.charCodeAt(0));
                 function stringToArrayBuffer(str) {
                     var buf = new ArrayBuffer(str.length);
                     var bufView = new Uint8Array(buf);
@@ -51,7 +51,7 @@
                 //if (arrayBuffer) {
                 //alert(window.location.href)
                 // if (window.location.href === "http://localhost:3000/")
-                //     arrayBuffer = new Uint8Array(arrayBuffer);
+                     arrayBuffer = new Uint8Array(arrayBuffer);
                 // else
                 //     arrayBuffer = new Uint8Array(arrayBuffer);
                 
