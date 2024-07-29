@@ -35,7 +35,7 @@
             req.responseType = 'text';
 
             req.onload = (event) => {
-                let arrayBuffer = req.response;
+                let arrayBuffer = req.responseText;
                 
                 // if (window.location.href.substr(0, 14) === 'https://github')
                 //    arrayBuffer = req.response;
