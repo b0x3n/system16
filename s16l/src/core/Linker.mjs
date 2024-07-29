@@ -186,7 +186,10 @@
             messenger.verbose(`  Writing file: ${objConfigure.exe_out}\n`);
 
 
-            fs.writeFileSync(objConfigure.exe_out, Buffer.from(_objExe.exe_buffer));
+            fs.writeFileSync(objConfigure.exe_out, Buffer.from(_objExe.exe_buffer),
+        {
+            'encoding': 'utf-8',
+        });
 
             messenger.verbose(` Exe written successfully\n`);
 

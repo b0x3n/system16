@@ -35,12 +35,7 @@
             req.responseType = "arraybuffer";
 
             req.onload = (event) => {
-                let arrayBuffer;
-                
-                if (window.location.href === "http://localhost:3000/")
-                    arrayBuffer = req.response; // Note: not req.responseText
-                else
-                    arrayBuffer = req.responseText;
+                let arrayBuffer = req.response; // Note: not req.responseText
                 //let arrayBuffer = Uint8Array.from(req.response, c => c.charCodeAt(0));
                 function stringToArrayBuffer(str) {
                     var buf = new ArrayBuffer(str.length);
