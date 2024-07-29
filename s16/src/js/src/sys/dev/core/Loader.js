@@ -46,13 +46,16 @@
                 
                     return buf;
                 }
+
+                alert(typeof arrayBuffer);
                 //if (arrayBuffer) {
                 //alert(window.location.href)
                 if (window.location.href != "http://localhost:3000/")
                     arrayBuffer = stringToArrayBuffer(arrayBuffer);
                 else
                     arrayBuffer = new Uint8Array(arrayBuffer);
-                    successCallback(arrayBuffer);
+                
+                successCallback(arrayBuffer);
                 //}
             };
 
