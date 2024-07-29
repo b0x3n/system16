@@ -184,12 +184,14 @@
 
             messenger.verbose(`  File size: ${_objExe.exe_buffer.byteLength} bytes\n`);
             messenger.verbose(`  Writing file: ${objConfigure.exe_out}\n`);
+            
+            function ab2str(buf) {
+                return String.fromCharCode.apply(null, new Uint16Array(buf));
+              }
+              
+            const   __str = ab2str(_objExe.exe_buffer);
 
-
-            fs.writeFileSync(objConfigure.exe_out, Buffer.from(_objExe.exe_buffer),
-        {
-            'encoding': 'utf-8',
-        });
+            fs.writeFileSync(objConfigure.exe_out, __str);
 
             messenger.verbose(` Exe written successfully\n`);
 

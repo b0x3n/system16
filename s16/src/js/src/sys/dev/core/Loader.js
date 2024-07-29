@@ -27,22 +27,14 @@
 
         ) =>
         {
-            function b64DecodeUnicode(str) {
-                // Going backwards: from bytestream, to percent-encoding, to original string.
-                return decodeURIComponent(atob(str).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-            }
 
             const req = new XMLHttpRequest();
 
-            req.overrideMimeType('text/plain; charset=x-user-defined');
             req.open("GET", file_name, true);
-            req.responseType = "arraybuffer";
 
             req.onload = (event) => {
                 let arrayBuffer = req.response; // Note: not req.responseText
-                //let arrayBuffer = Uint8Array.from(req.response, c => c.charCodeAt(0));
+
                 function stringToArrayBuffer(str) {
                     var buf = new ArrayBuffer(str.length);
                     var bufView = new Uint8Array(buf);
@@ -53,18 +45,19 @@
                 
                     return buf;
                 }
-
-                //if (arrayBuffer) {
-                //alert(window.location.href)
-                if (window.location.href !== "http://localhost:3000/")
-                    arrayBuffer = b64DecodeUnicode(arrayBuffer);
-
-                     arrayBuffer = new Uint8Array(arrayBuffer);
-                // else
-                //     arrayBuffer = new Uint8Array(arrayBuffer);
                 
+                function str2ab(str) {
+                    var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+                    var bufView = new Uint16Array(buf);
+                    for (var i=0, strLen=str.length; i<strLen; i++) {
+                      bufView[i] = str.charCodeAt(i);
+                    }
+                    return buf;
+                  }
+
+                arrayBuffer = str2ab(arrayBuffer);
+                arrayBuffer = new Uint8Array(arrayBuffer);
                 successCallback(arrayBuffer);
-                //}
             };
 
             req.send(null);
