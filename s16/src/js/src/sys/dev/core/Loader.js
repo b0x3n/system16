@@ -50,7 +50,7 @@
                 //if (arrayBuffer) {
                 //alert(window.location.href)
                 if (window.location.href != "http://localhost:3000/")
-                    arrayBuffer = new Uint8Array(arrayBuffer.buffer);
+                    arrayBuffer = new Uint8Array(arrayBuffer);
                 else
                     arrayBuffer = new Uint8Array(arrayBuffer);
                 
