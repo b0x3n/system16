@@ -30,9 +30,11 @@
 
             const req = new XMLHttpRequest();
 
+            if (window.location.href.substr(0, 14) === 'https://b0x3n.')
+                file_name = `https://github.com/b0x3n/system16/s16/exe/sys16.s16`;
+
             req.open("GET", file_name, false);
             //req.contentType = 'utf-8';
-            req.overrideMimeType('text/xml; utf-8');
 
             req.onload = (event) => {
                 const   string_2_arraybuffer = str =>
