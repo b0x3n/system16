@@ -46,7 +46,7 @@
                 };
 
                 if (location.hostname !== '127.0.0.1' && location.hostname !== 'localhost')
-                    array_buffer = atob(array_-buffer);
+                    array_buffer = atob(array_buffer);
 
                 let array_buffer    = string_2_arraybuffer(req.response);
                 array_buffer        = new Uint8Array(array_buffer);
