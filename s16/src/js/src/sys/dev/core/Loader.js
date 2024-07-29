@@ -31,14 +31,14 @@
             const req = new XMLHttpRequest();
 
             req.open("GET", file_name, true);
-            req.dataType = 'text';
+            //req.dataType = 'text';
             req.responseType = 'text';
 
             req.onload = (event) => {
-                let arrayBuffer = req.responseText;
+                let arrayBuffer = req.response;
                 
-                if (window.location.href.substr(0, 14) === 'https://github')
-                    arrayBuffer = req.responseText;
+                // if (window.location.href.substr(0, 14) === 'https://github')
+                //    arrayBuffer = req.response;
                 function str2ab(str) {
                     var buf = new ArrayBuffer(str.length*2);
                     var bufView = new Uint16Array(buf);
