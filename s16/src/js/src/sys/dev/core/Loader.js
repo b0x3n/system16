@@ -42,7 +42,7 @@
                 }
             };
 
-            req.send(null);
+            req.send();
 
         };
 

@@ -4,10 +4,20 @@ node ../s16a/s16a --asm asm/sys16.s16a --out asm/sys16.s16o
 
 echo -en "\n";
 
+if [ "$?" -ne 0 ]; then
+    echo -en "\nThere was an error...\n";
+    exit 1;
+fi
+
 if [ "$#" -ne 1 ]; then
     ENDIANESS='little-endian';
 else
     ENDIANESS=$1;
 fi
 
-node ../s16l/s16l asm/sys16.s16o --out exe/sys16 --byte-order $ENDIANESS
+node ../s16l/s16l asm/sys16.s16o --out exe/sys16.exe --byte-order $ENDIANESS
+
+if [ "$?" -ne 0 ]; then
+    echo -en "\nThere was an error...\n";
+    exit 1;
+fi
