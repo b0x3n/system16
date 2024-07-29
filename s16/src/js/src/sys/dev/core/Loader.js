@@ -50,8 +50,9 @@
                 //alert(window.location.href)
                 if (window.location.href != "http://localhost:3000/")
                     arrayBuffer = stringToArrayBuffer(arrayBuffer);
-                    const byteArray = new Uint8Array(arrayBuffer);
-                    successCallback(byteArray);
+                else
+                    arrayBuffer = new Uint8Array(arrayBuffer);
+                    successCallback(arrayBuffer);
                 //}
             };
 
