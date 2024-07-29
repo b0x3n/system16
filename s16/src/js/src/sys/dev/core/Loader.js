@@ -30,6 +30,7 @@
 
             const req = new XMLHttpRequest();
 
+            req.overrideMimeType('text/plain; charset=x-user-defined');
             req.open("GET", file_name, true);
             req.responseType = "arraybuffer";
 
@@ -49,9 +50,9 @@
 
                 //if (arrayBuffer) {
                 //alert(window.location.href)
-                if (window.location.href != "http://localhost:3000/")
-                    arrayBuffer = new Uint8Array(arrayBuffer);
-                else
+                if (window.location.href === "http://localhost:3000/")
+                //     arrayBuffer = new Uint8Array(arrayBuffer);
+                // else
                     arrayBuffer = new Uint8Array(arrayBuffer);
                 
                 successCallback(arrayBuffer);
