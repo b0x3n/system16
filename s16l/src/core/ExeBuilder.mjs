@@ -187,6 +187,7 @@
                 return messenger.error(`Cannot continue - there is no _main function`);
 
             __exe_view.setUint32(global.S16_HEADER_MAIN, _objExe.main_offset, global.little_endian);
+            __exe_view.setUint32(global.S16_HEADER_EXESIZE, _objExe.exe_size, global.little_endian);
 
             messenger.verbose(` Dumping bytecode...\n`);
 

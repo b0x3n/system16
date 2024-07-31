@@ -20,6 +20,7 @@
 //
     const   S16_SYSTEM_HALT             = 0b00001000;
     const   S16_SYSTEM_WAIT             = 0b00000100;
+    const   S16_SYSTEM_BREAK            = 0b00000010;
 
 
 ///////////////////////////////////////////////////////////
@@ -53,13 +54,15 @@
         let     __int_handler           = false;
 
 
-        let     __clock_speed           = .5;
+        let     __clock_speed           = 1;
         let     __clock_timer_id        = false;
 
         let     __alu                   = false;
         
         let     __message               = false;
 
+        let     __debugger              = false;
+        let     __line_number           = 1;
 
 ///////////////////////////////////////////////////////////
 //  __set_reg()                                          //
@@ -76,11 +79,14 @@
 
             const   __ram_view          = new DataView(__ram[segment]);
 
+            console.log(__ram_view.getUint32(window.S16_HEADER_RW, window.little_endian));
+
             if (reg === 'RT' || reg === 'FL' || reg === 'OI' || reg === 'II')
                 __ram_view.setUint8(window.S16_REG[reg], value);
             else
                 __ram_view.setUint32(window.S16_REG[reg], value, window.little_endian);
-
+ console.log(__ram_view.getUint32(window.S16_HEADER_RW, window.little_endian));
+            
         };
 
 
@@ -477,7 +483,7 @@
             if (code_line[0].mnemonic === window.S16_MNEMONIC_MOV8)
             {
                 if (! __is_writeable(ram_view, code_line[2]))
-                    return `Attempt to write to a read-only location: ${__get_reg('IP')} ${code_line[2]}, ${code_line[3]}`;
+                    return `Attempt to write to a read-only location: IP=${__get_reg('IP')}, offset=${code_line[2]}, value=${code_line[3]}`;
         
                 ram_view.setUint8(code_line[2], code_line[3]);
                 __return_value = true;
@@ -584,7 +590,7 @@
                 if (! __is_writeable(ram_view, code_line[2]))
                     return `Attempt to write to a read-only location: ${__get_reg('IP')} ${code_line[2]}, ${code_line[3]}`;
         
-                ram_view.setUint8(code_line[2], ram_view.getUint16(__sp, window.little_endian));
+                ram_view.setUint8(code_line[2], ram_view.getUint(__sp));
             }
             else if (__mnemonic === window.S16_MNEMONIC_POP16)
             {
@@ -704,6 +710,7 @@
     //  If any call returns false we know it isn't what
     //  we're looking for so we try the next.
     //
+
             __return_value              = __alu.execute_line(code_line, __segment);
 
             if (__return_value === true || typeof __return_value === 'string')
@@ -777,6 +784,7 @@
 //
         const   __fetch_line            = () =>
         {
+            const   __ram_view      = new DataView(__ram[__segment]);
 
             const   __flags             = __get_reg('FL');
 
@@ -786,11 +794,11 @@
     //  We loop continuously until we find the end of
     //  the function (opcode will be 0).
     //
-            const   __ram_view      = new DataView(__ram[__segment]);
 
     //  Fetch the next instruction/opcode (2 bytes).
     //
             const   __ip            = __get_reg('IP', __segment);
+            const   __line_offset   = __ip;
             
     //  Get the entire instruction (2 bytes) and the
     //  individual components (modifier & opcode).
@@ -805,8 +813,8 @@
                 __opcode = __ram_view.getUint8(__ip);
             }
 
-            if (__flags & S16_SYSTEM_WAIT)
-                    return true;
+            // if (__flags & S16_SYSTEM_WAIT)
+            //         return true;
             
             let     __line_size     = 2;
 
@@ -845,6 +853,7 @@
                 else
                     __operand = __ram_view.getUint32((__ip + __line_size), window.little_endian);
 
+
     //  Any modifiers set?
     //
                 if (__modifier)
@@ -881,10 +890,28 @@
 
             __set_reg('IP', (__ip + __line_size), __segment);
 
+
+            __line_number++;
+
             messenger.verbose(` ${__opcode} (${__objMnemonic.mnemonic}) ${__operands} @ offset ${__ip}`);
             messenger.verbose(` IP = ${__get_reg('IP').toString(16)}, RT = ${__get_reg('RT').toString(16)}, FLAGS = ${__get_reg('FL').toString(2)}, BP = ${__get_reg('BP').toString(16)}, SP = ${__get_reg('SP').toString(16)}`);
 
-            return [ __objMnemonic, __opcode, ...__operands ];
+            const   __line_out          = [ __objMnemonic, __opcode, ...__operands ];
+        
+    ///////////////////////////////////////////////////////
+    //  If the debugger is enabled a handler is given
+    //  the __line_out (code_line) array.
+    //
+            if (__debugger)
+                __debugger(
+                    __ram_view,
+                    __line_out,
+                    __params,
+                    __line_offset,
+                    __line_number,
+                );
+
+            return __line_out;
 
         };
 
@@ -992,6 +1019,53 @@
 
 
 ///////////////////////////////////////////////////////////
+//  __disable_debugger()                                 //
+///////////////////////////////////////////////////////////
+//
+        const   __disable_debugger      = ram_view =>
+        {
+
+            if (__debugger)
+            {                  
+                __debugger(
+                    ram_view,
+                    false,
+                    false,
+                    __get_reg('IP'),
+                    __line_number
+                );
+            }   
+
+        };
+
+
+///////////////////////////////////////////////////////////
+//  _enable_debugger()                                   //
+///////////////////////////////////////////////////////////
+//
+        const   _enable_debugger        = callback =>
+        {
+
+            __debugger                  = callback;
+
+    //  Set up a click handler for the clock_speed
+    //  text input in the debugging options.
+    //
+            $('#clock_speed').on('keyup', function() {
+
+                const   __input_val     = $(this).val();
+
+                if (/^[+-]?([0-9]*[.])?[0-9]+$/.test(__input_val))
+                    $(this).removeClass('invalid_input');
+                else
+                    $(this).addClass('invalid_input');
+
+            });
+
+        };
+
+
+///////////////////////////////////////////////////////////
 //  __run()                                              //
 ///////////////////////////////////////////////////////////
 //
@@ -1004,6 +1078,12 @@
 
             __initialise_registers(__ram_view);
             __build_vector_table();
+
+            // if (__debugger)
+            // {
+            //     const   __flags             = 0b00000010;
+            //     __set_reg('FL', __flags);
+            // }
 
             objDevices[2].initialise(
                 __ram_view,
@@ -1077,22 +1157,32 @@
                         return;
                     }
 
-                    const   __return_value = __fetch_and_execute(__ram_view);
+                    if (__flags & S16_SYSTEM_BREAK || __flags & S16_SYSTEM_WAIT)
+                        return;
 
+                    const   __return_value = __fetch_and_execute(__ram_view);
+                    
                     if (typeof __return_value === 'string')
                     {
                         __flags |= S16_SYSTEM_HALT;
                         __set_reg('FL', __flags);
                         messenger.error(__return_value);
+
+                        __disable_debugger(__ram_view);
                         return;
                     }
 
                     if (! __return_value)
                     {
-                        (__call_depth > 0) ?
+                        if (__call_depth > 0)
                             messenger.verbose(`Function exited normally (RT=${__get_reg('RT')})`)
-                        :
+                        else
+                        {
                             messenger.verbose(`System halted normally (RT=${__get_reg('RT')})`);
+                            __flags |= S16_SYSTEM_HALT;
+                            __set_reg('FL', __flags);
+                            __disable_debugger(__ram_view);
+                        }
 
                         return;
                     }
@@ -1128,7 +1218,9 @@
 
         return {
 
-            run:                        _run
+            run:                        _run,
+        
+            enable_debugger:            _enable_debugger
 
         };
 

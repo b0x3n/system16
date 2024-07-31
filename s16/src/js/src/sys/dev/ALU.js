@@ -100,8 +100,12 @@
                 if (! is_writeable(ram_view, code_line[2]))
                     return `${code_line[0].mnemonic} - Attempt to write to read-only memory @ ${code_line[2]}`;
     
-                __lval                  = ram_view.getUint32(__dst, window.little_endian);
-                ram_view.setUint32(__dst, (__lval + __rval), window.little_endian);
+                __lval = ram_view.getUint32(__dst, window.little_endian);
+                
+                const   _result = parseInt(__lval) + parseInt(__rval);
+                console.log(`\\0x1b[31m;+------------------------------------------------  code_line[2] = ${code_line[2]} === ${__lval} + ${__rval} == ${_result}\\0x1b[0m;]`)
+                ram_view.setUint32(__dst, parseInt(_result), window.little_endian);
+                console.log(`------------------------------------------- UPDATED ADDR ${__dst} = ${ram_view.getUint32(__dst, window.little_endian)}`);
             }
 
             if (__lval !== false)

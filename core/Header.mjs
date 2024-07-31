@@ -152,7 +152,7 @@
         const   __initialise                = () =>
         {
 
-            __dst_view.setUint32(global.S16_HEADER_EXESIZE, objExe.exe_size, global.little_endian);
+           // __dst_view.setUint32(global.S16_HEADER_EXESIZE, objExe.exe_buffer.byteLength, global.little_endian);
         
             __set_header_id();
             __set_header_version();

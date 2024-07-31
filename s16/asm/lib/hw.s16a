@@ -6,19 +6,38 @@
 
     .section        code
 
+
+///////////////////////////////////////////////////////////
+//  __monitor_handler                                    //
+///////////////////////////////////////////////////////////
+//
         function    __monitor_handler
 
+            push32  %BP;
+            mov32   BP, %SP;
+
             mov16   FX, %OI;
-            mov8    EX, #AX;
+            //mov8    EX, #AX;
+
+            pop32   BP;
 
             ret     0;
 
         end
 
 
+///////////////////////////////////////////////////////////
+//  __keyboard_handler                                   //
+///////////////////////////////////////////////////////////
+//
         function    __keyboard_handler
 
-            mov16   FX, %OI;
+            push32  %BP;
+            mov32   BP, %SP;
+
+            mov8   FX, %OI;
+
+            pop32   BP;
 
             ret     0;
 

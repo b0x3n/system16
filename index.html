@@ -26,9 +26,40 @@
                 <nav>
                     <a href="one">Link 1</a>
                     <a href="two">Link 2</a>
-                </nav>
+                </nav> 
                 <div id="display" class="display"></div>
-                <footer>Footer</footer>
+                <div id="terminal_debug_panel" class="debug_panel">
+                    <div id="terminal_debug_registers" class="debug_panel_registers">
+                        REGISTERS
+                    </div>
+                    <div id="terminal_debug_data" class="debug_panel_info">
+                    </div>
+                    <div id="terminal_debug_code" class="debug_panel_info">
+                    </div>
+                </div>
+                <footer>
+                    <div id="debug_options" class="debug_options">
+                        <div id="debug_option_break" class="debug_option" title="Break/pause execution">
+                            Break
+                        </div>
+                        <!-- <div id="debug_option_resume" class="debug_option" title="Resume execution following a break">
+                            Resume
+                        </div> -->
+                        <div id="debug_option_reset" class="debug_option" title="Reset the system">
+                            Reset
+                        </div>
+                        <!-- <div id="debug_option_refresh" class="debug_option" title="Refresh the read-only section">
+                            Refresh
+                        </div> -->
+                        <div id="debug_option_run" class="debug_option" title="Reset the system">
+                            Run
+                        </div>
+                        <div id="debug_option_step" class="debug_option" title="Fetch and execute the next line">
+                            Step
+                        </div>
+                        <input type="text" name="speed" id="clock_speed" class="debug_input" value=".5" title="Clock speed (micro-seconds)">
+                    </div>
+                </footer>
             </div>
         </div>
 

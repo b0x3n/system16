@@ -1,0 +1,20 @@
+.section ro
+
+    m8  six = 'A';
+    m16 nums[2] = 255, 255;
+    m32 value = 100;
+
+.section rw
+
+    m8 one  = 10;
+    m8 two = 20;
+    m8 four = 30;
+
+
+.section code
+
+    function _main
+
+        ret 1;
+
+    end

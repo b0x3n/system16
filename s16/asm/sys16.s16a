@@ -6,13 +6,17 @@
 //
 
     .include lib/hw.s16a lib/io.s16a
+    //.include lib/str.s16a
 
 
     .section        ro
 
-        m8          buffer[16]          = "System16 ready ";
-        m8          instruction[20]     = "Type something: ";
-        m8          response[12]        = "You typed: ";
+
+        m8          __s16_title[16]         = "System16 ready ";
+        m8          __prompt[20]            = "Type something: ";
+        m8          response[12]            = "You typed: ";
+
+        m8          __mask                  = '*';
 
         m8          __mon_hdl   = 20;
         m8          __kbd_hdl   = 30;
@@ -20,49 +24,140 @@
 
     .section        rw
 
-            m8      __input_buffer[256];
+        m32         __msg_ptr;
+        
+        m8          __input_buffer[80];
+
+        m32         __current_line          = 1;
 
 
     .section        code
 
         function    _main
 
-            dev     1, __mon_hdl, __monitor_handler;
-            dev     2, __kbd_hdl, __keyboard_handler;
+            push32 %BP;
+            mov32  BP, %SP;
 
-            push32  buffer;
-
-            call    clear;
-            call    print;
-
-            mov32   CX, 3;
-            mov32   DX, 2;
-            mov16   OI, 5;
-            int     __mon_hdl;
-
-            pop32   AX;
-            push32  instruction;
-
-            call    print;
-
-            push32  0;
-            push32  255;
-            push32  __input_buffer;
-
-            call    getline;
+            call    __s16_init;
+            call    __next_line;
+            call    __get_command;
+           // call    __eval_command;
 
             mov32   CX, 4;
-            mov32   DX, 2;
-            mov16   OI, 5;
+            mov32   DX, 0;
+            mov8   OI, 5;
             int     __mon_hdl;
-
+            
             push32  response;
             call    print;
-            pop32   CX;
-            
+            pop32   BX;
             push32  __input_buffer;
             call    print;
+            pop32   BX;
+
+            pop32   BP;
 
             ret     0;
 
         end
+
+
+///////////////////////////////////////////////////////////
+//  __s16_init                                           //
+///////////////////////////////////////////////////////////
+//
+        function    __s16_init
+
+            push32  %BP;
+            mov32   BP, %SP;
+
+    ///////////////////////////////////////////////////////
+    //  Initialise interrupts.
+    //
+            dev     1, __mon_hdl, __monitor_handler;
+            dev     2, __kbd_hdl, __keyboard_handler;
+
+
+    ///////////////////////////////////////////////////////
+    //  Clear the screen and print the title string.
+    //
+            mov32   __msg_ptr, __s16_title;
+            push32  %__msg_ptr;
+
+            call    clear;
+            call    print;
+
+            pop32   BX;
+            pop32   BP;
+
+            ret     0;
+
+        end
+
+
+///////////////////////////////////////////////////////////
+//  __next_line                                          //
+///////////////////////////////////////////////////////////
+//
+        function    __next_line
+
+            push32  %BP;
+            mov32   BP, %SP;
+
+    //  Increase the current line position and set the
+    //  cursor position.
+    //
+            add32   __current_line, 1;
+
+            mov32   CX, %__current_line;
+            mov32   DX, 0;
+            mov16   OI, 5;
+
+            int     __mon_hdl;
+
+            pop32   BP;
+
+            ret     0;
+
+        end
+
+
+///////////////////////////////////////////////////////////
+//  __get_command                                        //
+///////////////////////////////////////////////////////////
+//
+        function    __get_command
+
+            push32  %BP;
+            mov32   BP, %SP;
+            
+    ///////////////////////////////////////////////////////
+    //  Display the prompt.
+    //
+            mov32   __msg_ptr, __prompt;
+            push32  %__msg_ptr;
+            call    print;
+            pop32   BX;
+
+    ///////////////////////////////////////////////////////
+    //  Read the next line of input.
+    //
+            push32  0;
+            push32  79;
+            push32  __input_buffer;
+
+            call    getline;
+
+    ///////////////////////////////////////////////////////
+    //  Clean up...
+    //
+            pop32   AX;
+            pop32   AX;
+            pop32   AX;
+
+            pop32   BP;
+
+            ret     0;
+
+        end
+

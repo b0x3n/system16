@@ -20,6 +20,7 @@
 
 
     import { Loader } from              "./dev/core/Loader.js";
+    import { Debugger } from            "./dev/core/Debugger.js";
 
 
 ///////////////////////////////////////////////////////////
@@ -44,8 +45,8 @@
             'flicker':                  true,
             'blink':                    1000,
 
-            'debug':                    false,
-            'be_verbose':               true
+            'debug':                    true,
+            'be_verbose':               false
 
         
         }
@@ -98,6 +99,12 @@
                                             __ram
                                         );
 
+        let     __debugger              = Debugger(
+                                            __ram,
+                                            __display.objDisplay,
+                                            __messenger
+                                        );
+
 
 ///////////////////////////////////////////////////////////
 //  __initialise()                                       //
@@ -123,10 +130,18 @@
     //  0 of RAM.
     //
                     __messenger.verbose(` Loaded s16 executable (${data.byteLength} bytes): ` + data);
+                    
                     __loader.load_exe(
                         data,
                         0
                     );
+
+
+    //  Build the debugger.
+    //
+                    __debugger.initialise();
+
+                    _process.enable_debugger(__debugger.fetch_line);
 
     //  TODO: Header check
     //

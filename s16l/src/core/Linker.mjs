@@ -30,6 +30,8 @@
 //
     import { ExeBuilder } from          "./ExeBuilder.mjs";
 
+    import { Registers } from           "./Registers.js";
+
 
 ///////////////////////////////////////////////////////////
 //  The Linker module.                                   //
@@ -128,6 +130,30 @@
 
 
 ///////////////////////////////////////////////////////////
+//  __check_exe_size()                                   //
+///////////////////////////////////////////////////////////
+//
+        const   __check_exe_size        = () =>
+        {
+
+            if (_objExe.exe_buffer.byteLength % 2)
+            {
+                let     __newbuf        = new ArrayBuffer(_objExe.exe_buffer.byteLength + 1);
+                let     __src           = new DataView(_objExe.exe_buffer);
+                let     __dst           = new DataView(__newbuf);
+
+                let     __byte_no;
+
+                for (__byte_no = 0; __byte_no < _objExe.exe_size; __byte_no++)
+                    __dst.setUint8(__byte_no, __src.getUint8(__byte_no));
+                __dst.setUint8(__byte_no, 0);
+
+                _objExe.exe_buffer      = __newbuf;
+            }
+
+        };
+
+///////////////////////////////////////////////////////////
 //  _link()                                              //
 ///////////////////////////////////////////////////////////
 //
@@ -184,10 +210,19 @@
 
             messenger.verbose(`  File size: ${_objExe.exe_buffer.byteLength} bytes\n`);
             messenger.verbose(`  Writing file: ${objConfigure.exe_out}\n`);
+
+
+    ///////////////////////////////////////////////////////
+    //  Populate the registers in the header before
+    //  the write.
+    //
+            const   __registers         = Registers(_objExe);
             
             function ab2str(buf) {
                 return String.fromCharCode.apply(null, new Uint16Array(buf));
-              }
+            }
+
+            __check_exe_size();
               
             const   __str = ab2str(_objExe.exe_buffer);
 

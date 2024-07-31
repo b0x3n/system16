@@ -1,8 +1,8 @@
 #!/bin/bash
 
-node ../s16a/s16a --asm asm/sys16.s16a --out asm/sys16.s16o
+node ../s16a/s16a --asm asm/sys16.s16a --out asm/sys16.s16o -v
 
-echo -en "\n";
+echo -en "\n\n";
 
 if [ "$?" -ne 0 ]; then
     echo -en "\nThere was an error...\n";
@@ -15,4 +15,4 @@ else
     ENDIANESS=$1;
 fi
 
-node ../s16l/s16l asm/sys16.s16o --out exe/sys16.s16 --byte-order $ENDIANESS
+node ../s16l/s16l asm/sys16.s16o --out exe/sys16.s16 --byte-order $ENDIANESS 

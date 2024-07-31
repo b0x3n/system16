@@ -93,6 +93,7 @@
                         {
                             __data_view.setUint8(__data_offset, __data[param_no]);
                             __data_offset += 1;
+                            continue;
                         }
                         else if (__type === global.S16_MEMTYPE_M16)
                         {
@@ -100,7 +101,7 @@
                             __data_offset += 2;
                             continue;
                         }
-                        else
+                        else if (__type === global.S16_MEMTYPE_M32)
                         {
                             __data_view.setUint32(__data_offset, __data[param_no], global.little_endian);
                             __data_offset += 4;

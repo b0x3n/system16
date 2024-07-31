@@ -500,6 +500,9 @@
                     line_no++;
                     continue;
                 }
+
+                if (__tokens[2] === global.S16_MNEMONIC_RET)
+                    __returns = true;
                 
     //  Not a label, it's a line of code - quick
     //  check before it's added to the section.
@@ -515,9 +518,6 @@
     //
                 _addr.push(__line_size);
                 _data.push(__tokens);
-
-                if (__tokens[2] === global.S16_MNEMONIC_RET)
-                    __returns = true;
 
                 __function_size += __line_size;
 

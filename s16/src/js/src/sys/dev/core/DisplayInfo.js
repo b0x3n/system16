@@ -141,7 +141,11 @@
             const   __height            = parseInt(_objDisplay['target-el'].css('height').replace('px', ''));
             const   __width             = parseInt(_objDisplay['target-el'].css('width').replace('px', ''));
 
-            _objDisplay['terminal']['width'] = __width;
+            if (objConfigure.hasOwnProperty('debug') && objConfigure['debug'] !== false)
+                _objDisplay['terminal']['width'] = ((__width / 10) * 7);
+            else
+                _objDisplay['terminal']['width'] = __width;
+    
             _objDisplay['terminal']['height'] = __height;
 
             messenger.verbose(`   Terminal width: ${_objDisplay['terminal']['width']} `);
@@ -380,6 +384,13 @@
 
         ) =>
         {
+
+            if (objConfigure.hasOwnProperty('debug') && objConfigure['debug'] !== false)
+            {
+                $(`#${objConfigure['terminal-id']}_debug_panel`).css({
+                    'display': 'block'
+                });
+            }
 
             if (is_reset)
                 __disable_cursor();

@@ -45,7 +45,7 @@
         [window.S16_REG_IP]:            (window.S16_REGBUF_OFFSET + 0x10),
         [window.S16_REG_SP]:            (window.S16_REGBUF_OFFSET + 0x14),
         
-        [window.S16_REG_HS]:            (window.S16_REGBUF_OFFSET + 0x18),
+        [window.S16_REG_HB]:            (window.S16_REGBUF_OFFSET + 0x18),
         [window.S16_REG_HP]:            (window.S16_REGBUF_OFFSET + 0x1C),
 
         [window.S16_REG_RT]:            (window.S16_REGBUF_OFFSET + 0x20),

@@ -166,11 +166,11 @@
 
             const   ram_view          = new DataView(ram.ram[segment]);
 
-            messenger.verbose(`Display interrupted...`);
+            messenger.verbose(`+------------------------------------------------------------ Display interrupted...`);
 
     //  The instruction is at FX:
     //
-            const   __instruction       = ram_view.getUint16(window.S16_REG['FX'], window.little_endian);
+            const   __instruction       = ram_view.getUint8(window.S16_REG['FX'], window.little_endian);
 
             //const   __instruction       = ram.read_word_32(window.S16_REG['FX'], segment);
             
@@ -245,7 +245,9 @@
 
             putchar:                    _putchar,
 
-            interrupt:                  _interrupt
+            interrupt:                  _interrupt,
+
+            objDisplay:                 _objDisplay
 
         };
 

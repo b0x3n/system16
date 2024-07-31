@@ -32,6 +32,8 @@
 
             if (window.location.href.substr(0, 14) === 'https://b0x3n.')
                 file_name = `https://b0x3n.github.io/system16/s16/exe/sys16.s16`;
+            if (window.hostname === '127.0.0.1' || window.hostname === 'localhost')
+                file_name = `127.0.0.1/s16/exe/sys16.s16`;
 
             req.open("GET", file_name, false);
             //req.contentType = 'utf-8';
@@ -74,20 +76,13 @@
             const   __src_view          = new DataView(__exe_data);
             const   __dst_view          = new DataView(ram.ram[segment]);
 
-            let     byte_no = 0;
-
-            for (byte_no = 0; byte_no < __exe_data.byteLength; byte_no++)
-                __dst_view.setUint8(byte_no, __src_view.getUint8(byte_no));
-
-            messenger.verbose(`Copied EXE to ram - ${byte_no} bytes, total`);
-
     //  The byte-order is stored in the header at offset 78,
     //  we grab it here and set the window.little_endian
     //  value to true if we're using little-endian byte
     //  ordering and false if we're using big-endian.
     //
-            const   __little            = __dst_view.getUint8(window.S16_HEADER_ENDIANESS);
-            const   __big               = __dst_view.getUint8(window.S16_HEADER_ENDIANESS + 1);
+            const   __little            = __src_view.getUint8(window.S16_HEADER_ENDIANESS);
+            const   __big               = __src_view.getUint8(window.S16_HEADER_ENDIANESS + 1);
             
             if (__little === 0xFF && __big === 0x00)
             {
@@ -101,6 +96,14 @@
             }
             else
                 return messenger.error(`Error - unknown byte-ordering set in header`);
+            
+            const   __exe_size          = __src_view.getUint32(window.S16_HEADER_EXESIZE, true);
+            let     __byte_no;
+
+            for (__byte_no = 0; __byte_no < __exe_size; __byte_no++)
+                __dst_view.setUint8(__byte_no, __src_view.getUint8(__byte_no));
+
+            messenger.verbose(`Copied EXE to ram - ${__byte_no} bytes, total`);
 
         };
 
