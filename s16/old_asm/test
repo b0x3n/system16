@@ -1,0 +1,44 @@
+
+
+    model       multi;
+
+    .section ro
+
+        m32     nums[10]    = 10, 20, 30, 40, 50, 60, 70, 80, 90, 100;
+        m32     seg         = 0;
+
+        m32     __ro        = 90;
+        m32     __rw        = 94;
+        m32     __code      = 98;
+        m32     __stack     = 102;
+
+    .section rw
+
+
+    .section code
+
+        function _main
+
+            push32  50;
+            push16  25;
+            push8   65;
+
+            call    __dev
+
+        end
+
+        function    __dev
+
+            push32  %BP;
+            mov32   BP, %SP;
+
+            par8    AX, 0;
+            par16   BX, 1;
+            par32   CX, 3;
+            
+            pop32   BP;
+
+            ret 0;
+
+        end
+            

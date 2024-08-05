@@ -1,0 +1,121 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/asm/lib/io/mon.s16a                     //
+///////////////////////////////////////////////////////////
+//
+//  Output routines.
+//
+
+
+.section        rw
+
+///////////////////////////////////////////////////////////
+//  Info about the terminal.
+//
+    m16         __terminal_cols
+    m16         __terminal_rows
+
+
+///////////////////////////////////////////////////////////
+//  The print function uses this as a pointer to the
+//  output buffer.
+//
+    m16         __print_ptr
+
+
+.section        code
+
+
+///////////////////////////////////////////////////////////
+//  print                                                //
+///////////////////////////////////////////////////////////
+//
+//  Will print a 0-terminated string to the display.
+//
+//  All the caller needs to do is push the address
+//  of the buffer onto the stack and call.
+//
+    function    print
+
+        push16  %BP
+        mov16   BP, %SP
+
+
+    ///////////////////////////////////////////////////////
+    //  Before we begin - get the total number of rows and
+    //  columns in the terminal.
+    //
+        mov8    OI, 3
+        int     %__mon_int
+
+        mov16   __terminal_rows, %DX
+        mov16   __terminal_cols, %EX
+        sub16   __terminal_rows, 1
+        sub16   __terminal_cols, 1
+
+
+    ///////////////////////////////////////////////////////
+    //  Grab the parameter into __str_ptr
+    //
+        par16   __print_ptr, 0
+
+
+@__print_loop
+
+    ///////////////////////////////////////////////////////
+    //  Get the current cursor position.
+    //
+        mov8    OI, 4
+        int     %__mon_int
+
+        cmp16   %DX, %__terminal_rows
+        je      __print_add_line
+
+
+@__print_resume
+
+    ///////////////////////////////////////////////////////
+    //  We will interrupt the display with a putchar (2)
+    //  instruction for every byte we want to print.
+    //
+        mov8    OI, 2
+
+    ///////////////////////////////////////////////////////
+    //  Grab the next byte into EX...
+    //
+        mov16   EX, #__print_ptr
+
+    ///////////////////////////////////////////////////////
+    //  If it's the terminating 0 we can return.
+    //
+        cmp8    %EX, 0
+        je      __print_end
+
+    ///////////////////////////////////////////////////////
+    //  Print the byte and advance the pointer.
+    //
+        int     %__mon_int
+        add16   __print_ptr, 1
+
+        jmp     __print_loop
+
+
+@__print_add_line
+
+        cmp16   %EX, %__terminal_cols
+        jne     __print_resume
+
+    //  Add a new row and scroll up one
+    //  position.
+    //
+        mov8    OI, 6
+        int     %__mon_int
+
+        jmp     __print_resume
+
+
+@__print_end
+
+        pop16   BP
+        ret     0
+
+    end

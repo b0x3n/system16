@@ -1,0 +1,37 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/src/scss/style/_header.scss             //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+
+    header
+    {
+
+        position: absolute;
+
+        top: 0;
+        left: 0vw;
+        width: 100vw;
+        height: 6vh;
+
+        font-family: $header-font;
+        font-size: 5vh;
+
+        color: #000;
+        background-color: $cell-bg;
+
+        padding: 0px 1vw;
+        
+        text-shadow:
+        -1px -1px 0 $cell-fg,
+         0   -1px 0 $cell-fg,
+         1px -1px 0 $cell-fg,
+         1px  0   0 $cell-fg,
+         1px  1px 0 $cell-fg,
+         0    1px 0 $cell-fg,
+        -1px  1px 0 $cell-fg,
+        -1px  0   0 $cell-fg;
+    }
+

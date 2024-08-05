@@ -1,0 +1,273 @@
+03 - Hello world
+
+
+    3.1 - Declaring memory
+    3.2 - Buffers
+    3.3 - Important distinctions
+
+
+Since ancient times it has been the custom, so who am I to
+buck that trend?
+
+We'll write a simple hello world program, this is a lot
+more challenging and fun that doing it in a language like
+c or JavaScript, we have no printf() or console.log(), we
+need to count, loop, use interrupts - the whole shebang!
+
+In this chapter we'll learn about memory declarations and
+allocation.
+
+Let's do it.
+
+
+3.1 - Declaring memory
+
+The s16 system is something that has evolved over time, I 
+wrote the first version of this well over 10 years ago and
+it was written in c, that code is lost on some dusty hard
+drive somewhere.
+
+I'd toyed with the idea of bringing it to the browser, we
+are now at a place where it's entirely possible to build a
+reasonably fast virtual machine in JavaScript, and here we
+are.
+
+The initial goal was to create a simple 16-bit system that
+had a real retro vibe and ran in the browser with a terminal
+emulator, why? I dunno...for a laugh?! I just wanted
+something simple that I can have fun programming and playing
+about with.
+
+Anyway - despite the 16 in s16 we kind of have a 32-bit
+system, this means we can declare 3 types of memory:
+
+    m8          8-bit or 1 byte
+    m16         16-bit or 2 bytes
+    m32         32-bit or 4 bytes
+
+When we declare some memory we also need to give it a unique
+name or label, so if I want to reserve a single byte in the
+ro section:
+
+    .section    ro
+
+        m8      a_byte;
+
+In this case, bytes are what we need because we're going to
+store and print the string:
+
+    Hello, world!
+
+So how do we do that?
+
+
+3.2 - Buffers
+
+We can declare a buffer by specifying a [size] property
+following the label, for example:
+
+    .section    rw
+        m32     nums[10];
+
+Will reserve 40 bytes in the rw section, we're declaring 10
+x m32 (10 x 4 bytes) - if we want to assign values we can
+do that:
+
+    m32     nums[10]    = 10, 20, 30, 40, 50;
+
+In this case we only assign 5 values:
+
+    nums[0] = 10
+    nums[1] = 20
+    nums[2] = 30
+    nums[3] = 40
+    nums[4] = 50
+
+The last 5 values will simply be initialised at 0 if we
+don't assign them. If we assume that the ro section is
+stored at offset 150 in memory then nums[0] has the
+address 150, nums[1] an address of 154, nums[2] an
+address of 158 and so on.
+
+For our hello world application we don't want m32 we
+want m8 since we're storing a string of bytes:
+
+    m8      buffer[14]      = "Hello, world!";
+
+If you count the characters in the string you'll see
+there are 13 in total, yet 14 are declared - this is
+because any "quoted string" is 0 terminated, so
+buffer[13] will be set to 0 to mark the end of the
+string.
+
+Remember in the previous chapter I said how we can't
+use quoted strings with the .include directive? This
+is why, imagine the string:
+
+    m8      buffer[6]       = "ABCDE";
+
+The assembler will parse this string into an array of
+ASCII character codes, it's the same as doing:
+
+    m8      buffer[6]       = 65, 66, 67, 68, 69, 0;
+
+Or:
+
+    m8      buffer[0]       = 65;
+    m8      buffer[1]       = 66;
+    m8      buffer[2]       = 67;
+    m8      buffer[3]       = 68;
+    m8      buffer[4]       = 69;
+    m8      buffer[5]       = 0;
+
+Or even:
+
+    m8      buffer[0]       = 'A';
+    m8      buffer[1]       = 'B';
+    m8      buffer[2]       = 'C';
+    m8      buffer[3]       = 'D';
+    m8      buffer[4]       = 'E';
+    m8      buffer[5];
+
+Remember - declaraing and not assigning will initialise
+the value at 0, so:
+
+    m8      buffer[5]       = 0;
+    m8      buffer[5];
+
+Are essentially the same thing.
+
+We can declare the string in the ro section since we
+don't intend to write to it, it doesn't matter much but
+let's play by the rules - here's our file so far:
+
+
+    ///////////////////////////////////////////////////////
+    //  Hello_world.s16a                                 //
+    ///////////////////////////////////////////////////////
+    //
+
+        .section    ro
+
+            m8      buffer[14]      = "Hello, world!";
+
+
+Now we need to write some code that will loop through each
+byte of the buffer and print it to the terminal, we'll get
+to that in the next chapter.
+
+
+3.3 - Important distinctions
+
+You have to understand before we proceed that memory is
+contextual - we can do some things at the assembly stage
+such as declare and use env variables.
+
+This stuff isn't part of the final executable, take this
+simple example:
+
+    .section    env
+    
+        m32     a_number        = 123;
+
+    .section    rw
+
+        m32     another_number  = $a_number;
+
+Here, we declare a variable in env named a_number, we
+then assign the value of a_number to another_number,
+the $ prefix is telling the assembler to expand the
+reference $a_number to the value of a_number, which is
+123.
+
+This is the same as doing:
+
+    m32     another_number  = 123;
+
+Because env variables are not baked into the executable,
+they are discared by the linker, a_number has noactual
+address at runtime, it no longer exists!
+
+However, another_number is in the rw section, so we can
+reference this label at runtime - imagine this:
+
+    .section    env
+    
+        m32     a_number        = 123;
+
+    .section    rw
+
+        m32     another_number  = $a_number;
+
+    .section    code
+
+    //  Ooh, some code!
+    //
+        function    _main
+
+            mov32   AX, a_number;
+
+        end
+
+The linker will resolve the line:
+
+    mov32   AX, a_number;
+
+To the actual addresses of the AX register (more on this
+later) and a_number.
+
+If we assume for examples' sake that a_number is stored at
+location 150 in memory and the AX register has an address
+of 120 then this line essentially becomes:
+
+    mov32   120, 150;
+
+Mov is telling the VM - put the value at address 150 into
+address 120:
+
+    mov32   destination_address, source_address;
+
+And we can write code like that if we want to, the point
+is that a_number being an env variable cannot be used in
+this way since a_number has no address to reference, we
+can only $reference these values during the assembly and
+linking stages.
+
+We can still do something like this:
+
+    .section    env
+    
+        m32     a_number        = 123;
+
+    .section    rw
+
+        m32     another_number  = $a_number;
+
+    .section    code
+
+        function    _main
+
+            mov32   AX, $a_number;
+            //  or
+            mov32   AX, $another_number;
+
+        end
+
+Because the reference $a_number will simply be resolved
+to the literal value of a_number, this is the same as
+doing:
+
+    mov32   AX, 123;
+
+The distinction here is how the label another_number
+translates:
+
+    $another_number     - Resolved to 123 at assembly.
+    another_number      - Address of another_number at
+                          runtime.
+
+I don't want to get into addressing modes at this stage
+but I just wanted to clarify a little about how we can
+actually use the memory we declare at both the build
+stages and at runtime.
+

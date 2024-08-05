@@ -1,0 +1,387 @@
+4 - Functions
+
+
+    4.1 - The main function
+    4.2 - Interrupts
+    4.3 - The display
+    4.4 - Printing a character
+
+
+The code section is where all of the action is, it is
+made up of functions.
+
+Everything in the code section is a function, clearly
+defined by the opening line:
+
+    function <label>
+
+And ending with a single 'end' statement:
+
+    end
+
+Just like with data declarations, a function needs a
+unique label that we can use to reference it - each
+function has its own code and is typically designed
+to carry out a specific task.
+
+Here, we will learn how to write simple functions in
+preparation for completing our hello world program.
+
+
+4.1 - The _main function
+
+When the s16 VM loads an executable it will arrange it
+in memory (RAM) for execution, everything is laid out
+at specific locations:
+
+    +------------------------------------------------------+
+    |   Header data - 140 bytes, contains information      |
+    |   about the executable, size of the ro, rw and       |
+    |   code section, the registers are also stored        |
+    |   here.                                              |
+    |                                                      |
+    |   We don't need to care much about it but if you     |
+    |   really want to know more see:                      |
+    |                                                      |
+    |       System16/core/defs/ExeHeader.js                |
+    +------------------------------------------------------+
+    |   Read-only data - offset 140                        |
+    +------------------------------------------------------+
+    |   Read-write data - offset = 140 + size of ro        |
+    +------------------------------------------------------+
+    |   Code - offset = 140 + size of ro + rw              |
+    +------------------------------------------------------+
+
+So the system needs to know where these sections are located
+in memory, all of this data is extracted from the header 
+when s16 boots - it needs to know where the code is so that
+it can begin execution.
+
+It also needs to know what function to run when the program
+initially loads and executes...we can't just start at the
+first byte of the code section!
+
+The header contains an entry at location 46 that stores the
+address of the _main function - you see, you can assemble a
+file that has no _main function but you can't link objects
+unless one of them has a _main function, because _main is
+the entry point for execution, it's always the first
+function to be called when a program is loaded and run.
+
+You can name all of your other functions whatever you want
+(almost) but _main is a requirement for a working executable,
+it's the starting point for every s16 application, here's
+our code:
+
+
+    ///////////////////////////////////////////////////////
+    //  Hello_world.s16a                                 //
+    ///////////////////////////////////////////////////////
+    //
+    
+        .section    ro
+
+            m8      buffer[14]      = "Hello, world!";
+
+
+        .section    code
+
+            function _main
+
+            //  Move the address of our buffer into the
+            //  AX register.
+                mov32   AX, buffer;
+
+            end
+
+
+Okay, it's a start - we have moved the address of the
+buffer we want to output into the AX register, we can
+use AX as a pointer to our data, AX contains the
+address of byte 0 of buffer.
+
+But how do we print a character? 
+
+
+4.2 - Interrupts
+
+What we need to do is tell the s16 system how we want
+to communicate with the hardware (not really hardware,
+just JS modules, it's all a simulation, dude!).
+
+When the s16 system boots up it receives "devices" in an
+indexed array, by default we get:
+
+    devices [
+
+        ram,
+        display,
+        keyboard
+
+    ]
+
+We can add up to 8 devices in total, they're just basic
+JavaScript ES6 modules - what matters is the order they
+are passed, in the above case:
+
+    device[0] = ram
+    device[1] = display
+    device[2] = keyboard
+
+Is how they are ordered, so that's what we must follow.
+
+What we need to do is assign these devices an interrupt
+handler using the dev instruction:
+
+    dev     <device_id>, <interrupt_no>, <function>
+
+We will assign a function to device 1 (display) and give it
+an interrupt ID of 1 to keep things simple:
+
+    function    _main
+
+        dev     1, 1, __monitor;
+    
+    end
+
+    function    __monitor
+        
+    end
+
+This means we can now call:
+
+    int     1;
+
+And the __monitor function will be executed, automatically.
+
+We could assign any interrupt ID to device 1, it doesn't
+have to be 1:
+
+    dev     1, 100, __monitor;
+
+    // Then...
+    int     100;
+
+What we can't do is assign more than one handler to a device
+or use the same interrupt ID more than once:
+
+    //  Attempt to attach two handlers to device # 1- you're
+    //  gonna have a baaaad time!
+    dev     1, 1, __monitor;
+    dev     1, 2, __monitor2;
+
+Or...
+
+    //  Attempt to assign the same interrupt ID to two
+    //  devices - you're gonna have a baaaad time!
+    dev     1, 1, __monitor;
+    dev     2, 1, __keyboard;
+
+This would be a problem and cause s16 to bail with an error
+message on the console - once these are assigned they are
+fixed and cannot be changed at runtime simply because the
+devices in objDevices[] are fixed - they don't change at
+runtime.
+
+As long as we know the order the devices are passed in the
+objDevices[] array we can assign interrupt ID's at the start
+of a program - so far there only are three "devices". In
+reality there are only two because device 0 is ram and we
+can't interrupt ram, ram likes to be left alone to do its
+own thing - so really there are only two, the monitor (1)
+and the keyboard (2).
+
+This is useful, inside the __monitor function we can prepare
+the registers before the display module is invoked, the
+__monitor function will run first, then the display module
+will be invoked where it can extract the values it needs
+from the registers and do it's thing.
+
+It also means we can write devices fairly easily, we just
+write the JavaScript module, load it when s16 boots up and
+add it into the objDevices[] array that's fed into the
+CPU module, all of this information is stored in the vector
+table in the header beginning at offset 50 - each entry is
+5 bytes - one byte for the interrupt ID giving us an
+inclusive range of 0-255 and 4 bytes for the offset address
+of the handler - the handler can be left empty if you want,
+it doesn't need to do anything but it needs to exist as a
+function.
+
+Device modules are written in a certain format, I'll cover
+that at some point but for now we just need to know how to
+assign an interrupt ID to the monitor so that we can print
+our "Hello, world!" string to the display.
+
+
+4.3 - The display
+
+The display module will look for specific instructions in
+the FX register:
+
+    Instruction     Description
+
+    1               Clear the display
+    2               Print a character to the display
+    3               Get the number of rows/columns
+    4               Get the current cursor position
+    5               Move the cursor
+
+More instructions will be added over time, we're really
+interested in instructions 1 and 2 at this stage.
+
+We also need to be aware of the particular device module
+and what size of parameters it expects - the display
+expects a 16-bit instruction.
+
+The first thing we need to do is put the instruction in
+the OI (output interrupt) register, so if we want to
+clear the screen for example:
+
+    function    _main
+
+        dev     1, __monitor;
+
+    //  The display expects a 16-bit instruction.
+    //
+        mov16   OI, 1;      // Clear terminal (1)
+        int     1;          // Interrupt 1 (__monitor)
+
+    end
+
+    function    __monitor
+
+    //  The monitor always wants the instruction to
+    //  be in FX.
+        mov16   FX, %OI;
+
+    //  Return 0 (success) - as soon as we return, 
+    //  the display module will be invoked and will
+    //  grab the register values and act accordingly.
+        ret     0
+
+    end
+
+The handler just allows us to do any required setup
+before the device module is interrupted to handle the
+request.
+
+Note the use of the % character when referencing the
+OI register in the __monitor handler - what is this?
+
+Well, typically when we reference a register, e.g:
+
+    mov32   AX, BX;
+
+They're translated to their actual addresses in the
+header section, AX is at 124 and BX at 128, so really
+the above line is the same as doing:
+
+    mov32   124, 128;
+
+However, we can use modifiers - % and # to change the
+meaning of these values. If we do:
+
+    mov32   AX, 10;
+    mov32   BX, %AX;
+
+We are putting the value 10 into location 124, but when
+we do:
+
+    mov32   BC, %AX;
+
+We're telling the VM to put the value of AX (the value
+stored in address 124) into BX whereas:
+
+    mov32   BX, AX;
+
+Would put the actual address of AX (124) into BX. This
+is what's known as direct addressing.
+
+If we use the # character that's indirect addressing:
+
+    mov32   AX, 10;     // Put the value 10 in AX
+    mov32   BX, AX;     // Address of AX in BX
+    mov32   CX, #BX;    // Value at the address in BX
+                        // in CX
+
+In this case, BX contains the address of AX (124) and
+the # modifier is telling the VM to reference the value
+at the address stored in the BX register - #BX translates
+to the value 10 stored in AX - this is known as indirect
+addressing and is pretty useful, we can use this to write
+our hello world program!
+
+
+4.4 - Printing a character
+
+Okay, so we can clear the screen - how to we print a
+character to it? Well the instruction for putchar is
+2.
+
+The display module also expects the ASCII character
+code to be in the EX register - here's our new code:
+
+
+    ///////////////////////////////////////////////////////
+    //  Hello_world.s16a                                 //
+    ///////////////////////////////////////////////////////
+    //
+
+        .section        ro
+
+            m8  buffer[14]      = "Hello, world!";
+
+        .section        code
+
+        function    _main
+
+            dev     1, __monitor;
+
+            mov16   OI, 1;      // Clear terminal (1)
+            int     1;          // Interrupt 1 (__monitor)
+
+            mov16   OI, 2;      // putchar (2)
+            mov8    AX, buffer; // Character to print
+            int     1;
+
+        end
+
+        function    __monitor
+
+        //  The monitor always wants the instruction to
+        //  be in FX.
+            mov16   FX, %OI;
+
+        //  Move the character we want to print into
+        //  the EX register - note we use a mov8 since
+        //  the display expects this to be an 8-bit
+        //  ASCII code.
+            mov8    EX, #AX;
+
+        //  Return 0 (success) - as soon as we return, 
+        //  the display module will be invoked and will
+        //  grab the register values and act accordingly.
+            ret     0
+
+        end
+
+You can assemble and test this, it'll run:
+
+    node s16a --asm Hello_world --out Hello_world.s16o
+    node s16l Hello_world.s16o --out Hello_world.s16
+
+Drop the output file into:
+
+    System16/s16/exe
+
+Then run the npx server:
+
+    cd s16
+    npx serve
+
+And browse to the specified URL to view the results, if
+you open the console you'll see a dump of information
+about the instuctions and their parameters as they're
+fetched and executed in sequence.
+

@@ -1,0 +1,65 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/asm/lib/str.s16a                        //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+
+    .section        rw
+
+        m32         __str_left;
+        m32         __str_right;
+
+
+    .section        code
+
+        function    strcmp
+
+            push32      %BP;
+            mov32       BP, %SP;
+
+            peek        __str_left, %94, 1, 4;
+            peek        __str_right, %94, 4, 4;
+
+@__strcmp_loop
+
+    ///////////////////////////////////////////////////////
+    //  Compare the bytes and advance both pointers to
+    //  the next byte.
+    //
+            cmp8        #__str_left, #__str_right;
+            
+            add32       __str_left, 1;
+            add32       __str_right, 1;
+
+    ///////////////////////////////////////////////////////
+    //  If they don't match we return 0.
+    //
+            jne         __strcmp_fail;
+
+    ///////////////////////////////////////////////////////
+    //  Both bytes match, are they zero's? If so, both
+    //  strings match - return 1.
+    //
+            cmp8        #__str_left, 0;
+            je          __strcmp_success;
+
+    ///////////////////////////////////////////////////////
+    //  Next...
+    //
+            jmp         __strcmp_loop;
+
+
+@__strcmp_fail
+
+            pop32       BP;
+            ret         0;
+
+@__strcmp_success
+
+            pop32       BP;
+            ret         1;
+
+        end
+

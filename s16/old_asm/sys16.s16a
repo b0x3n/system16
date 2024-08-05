@@ -1,0 +1,173 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/asm/sys16.s16a                          //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+    .include lib/hw.s16a lib/io.s16a
+    //.include lib/str.s16a
+
+
+    .section        ro
+
+
+        m8          __s16_title[16]         = "System16 ready ";
+        m8          response[18]            = "Unknown command: ";
+        m8          __prompt[20]            = "$: ";
+
+        m8          __mask                  = '*';
+
+        m8          __mon_hdl   = 20;
+        m8          __kbd_hdl   = 30;
+
+
+    .section        rw
+
+        m16         __msg_ptr;
+        
+        m8          __input_buffer[256];
+
+        m16         __current_line          = 1;
+
+
+    .section        code
+
+        function    _main
+
+            push16 %BP;
+            mov16  BP, %SP;
+
+            call    __s16_init;
+
+@__next_command
+
+            call    __next_line;
+            call    __get_command;
+           // call    __eval_command;
+
+            mov16   CX, %__current_line;
+            mov16   DX, 0;
+            mov8   OI, 5;
+            int     %__mon_hdl;
+
+            mov8    OI, 6;
+            int     %__mon_hdl;
+            
+            push16  response;
+            call    print;
+            pop16   BX;
+            push16  __input_buffer;
+            call    print;
+            pop16   BX;
+
+            jmp     __next_command;
+
+            pop16   BP;
+
+            ret     0;
+
+        end
+
+
+///////////////////////////////////////////////////////////
+//  __s16_init                                           //
+///////////////////////////////////////////////////////////
+//
+        function    __s16_init
+
+            push16  %BP;
+            mov16   BP, %SP;
+
+    ///////////////////////////////////////////////////////
+    //  Initialise interrupts.
+    //
+            dev     1, %__mon_hdl, __monitor_handler;
+            dev     2, %__kbd_hdl, __keyboard_handler;
+
+
+    ///////////////////////////////////////////////////////
+    //  Clear the screen and print the title string.
+    //
+            mov16   __msg_ptr, __s16_title;
+            push16  %__msg_ptr;
+
+            call    clear;
+            call    print;
+
+            pop16   BX;
+            pop16   BP;
+
+            ret     0;
+
+        end
+
+
+///////////////////////////////////////////////////////////
+//  __next_line                                          //
+///////////////////////////////////////////////////////////
+//
+        function    __next_line
+
+            push16  %BP;
+            mov16   BP, %SP;
+
+    //  Increase the current line position and set the
+    //  cursor position.
+    //
+            add16   __current_line, 1;
+
+            mov16   CX, %__current_line;
+            mov16   DX, 0;
+            mov8    OI, 5;
+
+            add16       __current_line, 1;
+
+            int     %__mon_hdl;
+
+            pop16   BP;
+
+            ret     0;
+
+        end
+
+
+///////////////////////////////////////////////////////////
+//  __get_command                                        //
+///////////////////////////////////////////////////////////
+//
+        function    __get_command
+
+            push16  %BP;
+            mov16   BP, %SP;
+            
+    ///////////////////////////////////////////////////////
+    //  Display the prompt.
+    //
+            mov16   __msg_ptr, __prompt;
+            push16  %__msg_ptr;
+            call    print;
+            pop16   BX;
+
+    ///////////////////////////////////////////////////////
+    //  Read the next line of input.
+    //
+            push16  0;
+            push16  255;
+            push16  __input_buffer;
+
+            call    getline;
+
+    ///////////////////////////////////////////////////////
+    //  Clean up...
+    //
+            pop16   AX;
+            pop16   AX;
+            pop16   AX;
+
+            pop16   BP;
+
+            ret     0;
+
+        end
+

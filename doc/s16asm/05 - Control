@@ -1,0 +1,169 @@
+5 - Control
+
+
+Still with me? Great!
+
+In order to print out our string we are going to need to be
+able to iterate over the characters in the buffer.
+
+We know that our string ends with a 0 and we know the offet
+address of the string (buffer), so how do we get from start
+to finish?
+
+We need a loop and some way of evaluating the data, this is
+when things get fun!
+
+
+5.1 - Mathematical instructions
+
+We have 4 basic instructions that we can apply to 8, 16 and
+32 bit values:
+
+    add8, add16 and add32
+    sub8, sub16 and sub32
+    mul8, mul16 and mul32
+    div8, div16 and div32
+
+They all work the same way:
+
+    add8    <destination>, <source>;
+
+Destination is an address containing our accumulator, for
+example, if I want to add the numbers 10 and 20 I might
+do:
+
+    mov8    AX, 10;
+    add8    AX, 20;
+
+The second line will add 20 the the value stored in AX
+with the result being written directly to AX, so AX now
+contains 30.
+
+We don't have to use AX, we can use any general purpose
+register or even specify a location in memory so long as
+it's writeable.
+
+So think about this, what if we put the address of our
+buffer in AX:
+
+    mov32   AX, buffer;
+
+This means we can use the add instruction to add 1 to
+AX (buffer + 1) which will effectively point AX at the
+next byte in the buffer:
+
+    add32   AX, 1;
+
+What we need to do now is construct a looping mechanism
+that will continually print a character and advance to
+the next, breaking only when we find that 0 byte that
+terminates our string.
+
+
+5.2 - Looping
+
+How do we do this? We need a few things...
+
+First, we need to create a label that we can jump to,
+here's some code:
+
+    function _main
+
+        jmp     skip_everything;
+
+        mov8    AX, 100;
+        mov16   BX, 1000;
+        mov32   CX, 100000;
+
+    @skip_everything
+
+    end
+
+If we assemble, link and run this nothing much will
+happen, the jmp (jump) instruction on the first line
+of _main tells the VM to skip directly to the specified
+label @skip_everything.
+
+The program will jump over the 3 mov instructions and
+they will not be executed, this is handy because we can
+now jump from one section of code to another, it's also
+the basis for a looping mechanism.
+
+What we really need is to be able to jump to a location
+based on the outcome of a condition or evaluation, to
+do this we have the cmp (compare) instruction:
+
+    cmp8    #AX, 0;     // Is #AX equal to 0?
+
+We're using cmp8 to check whether the byte #AX points
+to is a 0 or not, cmp8 will evaluate this condition
+and set a flag in the FL register describing the
+outcome (specifically if #AX is equal to 0 it will
+set bit 7 in FL).
+
+Now we can use a conditional jump, in this case jne
+(jump if not equal)
+
+    cmp8    #AX, 0;
+    jne     restart_loop;
+
+The jne instruction will check the FL register to see
+if the 7th bit is 1 or 0, if it's 0 then #AX is not
+equal to 0, so we haven't reached the end of our
+buffer and can safely print the byte.
+
+Let's do it!
+
+
+    ///////////////////////////////////////////////////////
+    //  Hello_world.s16a                                 //
+    ///////////////////////////////////////////////////////
+    //
+
+        .section        ro
+
+            m8  buffer[14]      = "Hello, world!";
+
+        .section        code
+
+        function    _main
+
+            dev     1, __monitor;
+
+            mov16   OI, 1;      // Clear terminal (1)
+            int     1;          // Interrupt 1 (__monitor)
+
+        @next_byte
+
+            mov16   OI, 2;      // putchar (2)
+            mov8    AX, buffer; // Character to print
+            int     1;
+
+        //  Now we will add 1 to AX to point to the
+        //  next byte in the buffer.
+            add32   AX, 1;
+
+        //  Is it the 0 byte?
+            cmp8    #AX, 0;
+            jne     next_byte
+
+        end
+
+        function    __monitor
+
+        //  The monitor always wants the instruction to
+        //  be in FX.
+            mov16   FX, %OI;
+
+        //  Move the character we want to print into
+        //  the EX register - note we use a mov8 since
+        //  the display expects this to be an 8-bit
+        //  ASCII code.
+            mov8    EX, #AX;
+
+        //  Return 0 (success) - as soon as we return, 
+        //  the display module will be invoked and will
+        //  grab the register values and act accordingly.
+            ret     0
+
+        end

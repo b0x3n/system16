@@ -1,0 +1,122 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/asm/lib/io/kbd.s16a                     //
+///////////////////////////////////////////////////////////
+//
+//  Input routines.
+//
+
+
+.section        ro
+
+///////////////////////////////////////////////////////////
+//  Key codes.
+//
+    m8          __enter_key             = 13;
+
+
+.section        rw
+
+///////////////////////////////////////////////////////////
+//  See the readline function for more info.
+//
+    m8          __readline_mask_char
+    m16         __readline_buf_len
+    m16         __readline_buf_ptr
+
+    m16         __readline_bytes_read
+
+
+.section        code
+
+///////////////////////////////////////////////////////////
+//  readline                                             //
+///////////////////////////////////////////////////////////
+//
+//  Reads in a line of input from the keyboard - you need
+//  to:
+//
+//      push8   - Mask character - readline echos input
+//                to the display - we can mask the output
+//                with this byte.
+//
+//      push16  - Maximum number of bytes to read, usually
+//                the size of the input buffer - 1.
+//
+//      push16  - Address of the input buffer we want to
+//                store the input characters in.
+//
+//  In that order.
+//
+//  The function will continually read and store bytes
+//  until the limit is reached or the enter key is
+//  pressed.
+//
+    function    readline
+
+        push16  %BP
+        mov16   BP, %SP
+
+    ///////////////////////////////////////////////////////
+    //  Grab the parameters.
+    //
+        par8    __readline_mask_char, 4
+        par16   __readline_buf_len, 2
+        par16   __readline_buf_ptr, 0
+
+    ///////////////////////////////////////////////////////
+    //  Keep track of how many bytes we read - also the
+    //  __readline_buf_len will be decremented to allow
+    //  for the 0-byte that terminates the input buffer.
+    //
+        mov16   __readline_bytes_read, 1
+
+
+@__readline_loop
+
+    ///////////////////////////////////////////////////////
+    //  Make sure we don't exceed the maximum buffer
+    //  length.
+    //
+        cmp16   %__readline_buf_len, %__readline_bytes_read
+        je     __readline_end
+
+
+    ///////////////////////////////////////////////////////
+    //  Wait for a key press.
+    //
+        mov8    OI, 1
+        int     %__kbd_int
+
+    ///////////////////////////////////////////////////////
+    //  The key is returned in the FX register.
+    //
+    //  Is it the enter key?
+    //
+        cmp8    %__enter_key, %FX
+        je      __readline_end
+        
+    ///////////////////////////////////////////////////////
+    //  Add the character to the buffer and prepare for
+    //  the next pass...
+    //
+        mov16   %__readline_buf_ptr, %FX    // Store the byte
+        add16   __readline_buf_ptr, 1       // Advance the pointer
+        add16   __readline_bytes_read, 1    // Count the byte
+
+    ///////////////////////////////////////////////////////
+    //  The byte will be echo'd before we loop for the
+    //  next character.
+    //
+        mov8    EX, %FX
+        mov8    OI, 2
+        int     %__mon_int
+
+        jmp     __readline_loop;
+
+
+@__readline_end
+
+        mov8    %__readline_buf_ptr, 0      // 0-terminate the buffer.
+        pop16   BP
+
+    end

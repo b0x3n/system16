@@ -1,0 +1,164 @@
+///////////////////////////////////////////////////////////
+//  System16/s16a/asm/sys/repl.s16a                      //
+///////////////////////////////////////////////////////////
+//
+//  REPL for the system shell.
+//
+
+    
+.section        ro
+
+///////////////////////////////////////////////////////////
+//  Some strings used for the prompt, etc.
+//
+    m8          __input_prompt[4]       = "$> "
+
+
+.section        rw
+
+///////////////////////////////////////////////////////////
+//  This tracks our current row position in the terminal.
+// 
+    m16         __current_row           = 2;
+
+///////////////////////////////////////////////////////////
+//  Input buffer for the command.
+//
+    m16         __input_buf_len = 156
+    m8          __input_buffer[$__input_buf_len]
+
+    m16         __mask_byte             = '*'
+
+///////////////////////////////////////////////////////////
+//  This will be returned in the RT register.
+//
+    m8          __return_value          = 0
+
+
+    m16         __current_line          = 2
+
+
+.section        code
+
+///////////////////////////////////////////////////////////
+//  repl                                                 //
+///////////////////////////////////////////////////////////
+//
+//  The main loop - basic stuff:
+//
+//      1 - read input command...
+//      2 - ...?...
+//      3 - ...profit.
+//
+    function    repl
+
+        push16  %BP
+        mov16   BP, %SP
+
+
+    ///////////////////////////////////////////////////////
+    //  Push these onto the stack now - these are the
+    //  parameters for the readline function.
+    //
+        push8   %__mask_byte
+        push16  %__input_buf_len
+        push16  __input_buffer
+
+
+@__repl_loop
+
+
+        call    __repl_next_line
+
+
+    ///////////////////////////////////////////////////////
+    //  Display the input prompt.
+    //
+        push16  __input_prompt
+        call    print
+        pop16   AX
+
+
+    ///////////////////////////////////////////////////////
+    //  Read in a line of input.
+    //
+        call    readline
+
+
+    ///////////////////////////////////////////////////////
+    //  Move the cursor to the next line.
+    //
+        
+        call    __repl_next_line
+
+
+    ///////////////////////////////////////////////////////
+    //
+        push16  __input_buffer
+        call    print
+        pop16   AX
+
+
+        jmp     __repl_loop
+
+
+@__repl_end
+
+        pop16   AX
+        pop16   AX
+        pop8    AX
+
+        pop16   BP
+
+    end
+
+
+///////////////////////////////////////////////////////////
+//  __repl_next_line                                     //
+///////////////////////////////////////////////////////////
+//
+    function    __repl_next_line
+
+        push16  %BP
+        mov16   BP, %SP
+
+    ///////////////////////////////////////////////////////
+    //  Get the current cursor position, if the current
+    //  line is greater than the number of rows we
+    //  need to shift up and create a new row/line.
+    //
+        cmp16   %__terminal_rows, %__current_line
+        jgt     __repl_next_line_newline
+
+
+@__repl_next_line_resume
+    
+    ///////////////////////////////////////////////////////
+    //  Move the cursor to the next line.
+    //
+        mov16   DX, %__current_line
+        mov16   EX, 0
+        mov8    OI, 5
+        int     %__mon_int
+
+        add16   __current_line, 1
+
+        jmp     __repl_next_line_end
+
+
+@__repl_next_line_newline
+
+    ///////////////////////////////////////////////////////
+    //  Add a new line and shift everything up.
+    //
+        mov16   OI, 6
+        int     %__mon_int
+
+        jmp     __repl_next_line_resume
+
+
+@__repl_next_line_end
+
+        pop16   BP
+
+    end

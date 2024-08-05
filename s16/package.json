@@ -1,0 +1,26 @@
+{
+  "name": "s16",
+  "version": "1.0.0",
+  "description": "Test...",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "es6-watch": "webpack --watch ./src/js/Bootstrap.js --output-filename=app.js --output-path=./build --mode=development",
+    "sass-watch": "sass --watch --update --style=expanded src/scss:build/",
+    "dev": "npm run es6-watch & npm run sass-watch",
+    "build": "rm -rf ./build/* && sass --no-source-map --style=compressed src/scss:build/ && webpack ./src/js/Bootstrap.js --output-filename=app.js --output-path=./build --mode=production"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "jquery": "^3.7.1",
+    "sass": "^1.77.5",
+    "webpack": "^5.92.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "highlight.js": "^11.9.0"
+  }
+}

@@ -1,0 +1,31 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/src/scss/style/_footer.scss             //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+
+    footer
+    {
+
+        position: absolute;
+
+        bottom: 0;
+        left: 0vw;
+        width: 100vw;
+        height: 6vh;
+
+        line-height: 5vh;
+
+        font-family: $header-font;
+        font-size: 3vh;
+
+        color: #FFF;
+        background-color: $cell-bg;
+
+        padding: 0px 1vw;
+
+    }
+
+    

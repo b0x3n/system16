@@ -1,0 +1,29 @@
+///////////////////////////////////////////////////////////
+// System16/s16/src/scss/post/_flicker.scss              //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+
+    @keyframes __screen_flicker
+    {
+
+        0% {
+            opacity: 0.99
+        }
+        96% {
+            opacity: 0.98
+        }
+
+    }
+
+
+    .screen_flicker
+    {
+        animation-name: __screen_flicker;
+        animation-duration: .1s;
+        animation-direction: forwards;
+        animation-iteration-count: infinite;
+    }
+

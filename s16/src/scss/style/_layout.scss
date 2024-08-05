@@ -1,0 +1,51 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/src/scss/style/_layout.scss             //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+
+    *,
+    body
+    {
+
+        margin: 0px;
+        padding: 0px;
+
+        box-sizing: border-box;
+
+        overflow: hidden;
+
+    }
+
+
+    @mixin __wrapper($fg, $bg)
+    {
+
+        position: relative;
+
+        top: 0px;
+        left: 0px;
+        width: 100vw;
+        height: 100vh;
+
+        color: $fg;
+        background-color: $bg;
+
+        margin: 0px;
+        padding: 0px;
+
+    }
+
+    .outer
+    {
+        @include __wrapper($default-fg, $default-bg);
+    }
+
+    .inner
+    {
+        @include __wrapper(none, none);
+
+        padding: 0px 1vw;
+    }

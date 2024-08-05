@@ -1,0 +1,107 @@
+1 - s16 assembly
+
+
+    1.1 - The assembler (s16a)
+    1.2 - The linker (s16l)
+
+
+The s16 system needs a file to execute and that file needs
+to be structured in a very specific way.
+
+There are two applications that we can use to create valid
+executables, there's the assembler (s16a) and the linker
+(s16l).
+
+
+1.1 - The assembler (s16a)
+
+The assembler takes assembly input files and assembles
+them into an object file:
+
+    node s16a --asm file_1 file_2 file_3
+
+We can specify any number of assembly source files using
+the --asm command-line option.
+
+This will assemble file_1, file_2 and file_3 into an object
+file. Object files are partially processed and assembled
+code libraries that we can link with other applications. In
+our case they're really just JSON files containing parsed
+and merged data extracted from assembly input files.
+
+The point is, we put multiple files in and get a single
+output file, everything is assembled and merged, ready for
+linking. By default, s16a will write the output to a file
+named s16a.obj - we can specify a custom output file using
+the --out option:
+
+    node s16a --asm file_1 file_2 file_3 --out file_4
+
+If you want to see some verbose output use the -v switch:
+
+    node s16a --asm file_1 file_2 file_3 --out file_4 -v
+
+What the assembler is really doing is creating a single
+object and writing that to the output file, if we want we
+can also include other object files in the assembly and
+have them merged with the assembled object - essentially
+combining multipple objects into a single object, for
+example:
+
+    //  Let's assemble two separate object files:
+    node s16a --asm file_1 --out file_1.obj -v
+    node s16a --asm file_2 --out file_3.obj -v
+
+    //  Now we will assemble the third file, and
+    //  we will merge our two object files in
+    //  using the --obj option:
+    node s16a --asm file_3 --obj file_1.obj file_2.obj --out file_3.obj -v
+
+The assembler will create the first object by assembling
+file_3 and then it will load the two object files and
+merge all 3 objects into a single object, this is the
+same as doing:
+
+    node s16a --asm file_1 file_2 file_3 --out file_3.obj -v
+
+In fact, we don't need to give the assembler any assembly
+files at all, we can merge 2 or more objects:
+
+    node s16a --obj file_1.obj file_2.obj --out file_3.obj -v
+
+Obviously we can't merge a single object file as the output
+would be the exact same as the input, so it'd be pointless.
+
+
+1.2 - The linker (s16l)
+
+The linker takes one or more object files and builds an s16
+executable file, it works in a similar way to s16a only it
+doesn't want assembly input files, just object files.
+
+We can link any number of input files in a single command:
+
+    node s16l file_1 file_2 file_3
+
+No --obj option is required since the linker only expects
+one type of input file - we can still use the -v option to
+get verbose output:
+
+    node s16l file_1 file_2 file_3 -v
+
+By default, it will link the objects and write the output
+to a file named out.s16, we can use the --out option to
+specify an output file name:
+
+    node s16l file_1 file_2 file_3 --out s16_exe -v
+
+The s16_exe file can now be loaded and run in the s16 VM.
+
+That just leaves one question, how do we write the assembly
+files we need to build those object files?
+
+See:
+
+    02 - File structure
+
+And go from there.

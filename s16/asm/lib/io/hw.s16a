@@ -1,0 +1,131 @@
+///////////////////////////////////////////////////////////
+//  System16/s16/asm/lib/io/hw.s16a                      //
+///////////////////////////////////////////////////////////
+//
+//
+//
+
+
+.section        ro
+
+///////////////////////////////////////////////////////////
+//  Assign standard interrupts - we can interrupt the
+//  monitor (device 1) with:
+//
+//      int     %__mon_int
+//
+//  And the keyboard (device 2) with:
+//
+//      int     %__kbd_int
+//
+    m8          __mon_int               = 1
+    m8          __kbd_int               = 2
+
+
+.section        code
+
+
+///////////////////////////////////////////////////////////
+//  __init_io                                            //
+///////////////////////////////////////////////////////////
+//
+//  Assign interrupt handlers to I/O devices.
+//
+    function    __init_io
+
+        push16  %BP
+        mov16   BP, %SP
+
+        dev     %__mon_int, %__mon_int, __mon_handler
+        dev     %__kbd_int, %__kbd_int, __kbd_handler
+
+        pop16   BP
+        ret     0
+
+    end
+
+
+///////////////////////////////////////////////////////////
+//  __mon_handler                                        //
+///////////////////////////////////////////////////////////
+//
+//  Any time the monitor is interrupted this function is
+//  called before the monitor device module is invoked.
+//
+//  The monitor device module expects to find an 8-bit
+//  instruction in the FX register, additional paramters
+//  may be in the remaining general-purpose registers
+//  (AX-EX)
+//
+//  We don't put the instruction code directly in FX,
+//  it goes in the OI register, the __mon_handler will
+//  put the instruction in OI into FX ensuring it's an
+//  8-bit value before the monitor module is called to
+//  handle the interrupt request.
+//
+//      OI = 1      - Clear the terminal.
+//      OI = 2      - The putchar instruction, expects
+//                    athe 8-bit character value to be
+//                    in the EX register.
+//      OI = 3      - Get the number of rows and columsn
+//                    in the display - rows is returned
+//                    in DX (16-bit), columns in EX
+//                    (16-bit).
+//      OI = 4      - Get the current cursor position,
+//                    current row is returned in DX
+//                    (16-bit), and current column in
+//                    EX (16-bit).
+//      OI = 5      - Move the cursor, we specify which
+//                    row as a 16-bit value in DX and
+//                    column as a 16-bit value in EX.
+//      OI = 6      - Add a line and shift up - this
+//                    will shift all rows up one line
+//                    and add a new row to the bottom
+//                    of the display.
+//
+    function    __mon_handler
+
+        push16  %BP
+        mov16   BP, %SP
+
+        mov8    FX, %OI
+
+        pop16   BP
+        ret     0
+
+    end
+
+
+///////////////////////////////////////////////////////////
+//  __kbd_handler                                        //
+///////////////////////////////////////////////////////////
+//
+//  This function will be called any time the keyboard
+//  is interrupted - the code in this function will
+//  execute before the keyboard device module is
+//  invoked.
+//
+//  Similar thing as with the monitor - the keyboard
+//  expects to find an 8-bit instruction in the FX
+//  register but __kbd_handler expects to find that
+//  instruction in the OI register.
+//
+//  Instructions are:
+//
+//      OI = 1      - Wait for a single key press - this
+//                    puts the system in blocking mode,
+//                    halting execution until a key is
+//                    pressed. The key code is returned
+//                    in FX (8-bit).
+//
+    function        __kbd_handler
+
+        push16  %BP
+        mov16   BP, %SP
+
+        mov8    FX, %OI
+
+        pop16   BP
+        ret     0
+        
+    end
