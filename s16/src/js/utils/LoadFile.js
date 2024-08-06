@@ -45,10 +45,10 @@
 
         const req                           = new XMLHttpRequest();
 
-        // if (window.location.href.substr(0, 14) === 'https://b0x3n.')
-        //     file_name = `https://b0x3n.github.io/system16/s16/exe/sys16.s16`;
-        // if (window.hostname === '127.0.0.1' || window.hostname === 'localhost')
-        //     file_name = `127.0.0.1/s16/exe/sys16.s16`;
+        if (window.location.href.substr(0, 14) === 'https://b0x3n.')
+            file_name = `https://b0x3n.github.io/system16/s16/exe/sys16.s16`;
+        if (window.hostname === '127.0.0.1' || window.hostname === 'localhost')
+            file_name = `127.0.0.1/s16/exe/sys16.s16`;
 
         req.open("GET", exe_url, false);
 
