@@ -52,6 +52,7 @@
             file_name = `127.0.0.1/s16/exe/sys16.s16`;
 
         req.open("GET", exe_url, false);
+        req.responseType = "utf-16";
 
 
         req.onload                          = event =>
