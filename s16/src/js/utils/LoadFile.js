@@ -51,7 +51,7 @@
         if (window.hostname === '127.0.0.1' || window.hostname === 'localhost')
             file_name = `127.0.0.1/s16/exe/sys16.s16`;
 
-        req.open("GET", exe_url, false);
+        req.open("GET", file_name, false);
         req.responseType = "utf-16";
 
 
