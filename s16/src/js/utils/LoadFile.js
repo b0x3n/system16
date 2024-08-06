@@ -43,7 +43,8 @@
             
         };
 
-        const req                           = new XMLHttpRequest();
+        const   req                         = new XMLHttpRequest();
+        let     file_name;
 
         if (window.location.href.substr(0, 14) === 'https://b0x3n.')
             file_name = `https://b0x3n.github.io/system16/s16/exe/sys16.s16`;
