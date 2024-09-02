@@ -1,0 +1,14 @@
+
+
+    .section        code
+
+        function    _main
+        
+            push16  256
+            push16  256
+            push16  300
+
+            loc16   AX, 2
+            loc16   CX, 0
+            
+        end

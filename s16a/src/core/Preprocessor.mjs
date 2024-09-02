@@ -599,20 +599,20 @@
     //  We know it's an x instruction if the params
     //  list is empty.
     //
-            if (_objMnemonic.params.length === 0)
-                _line_size = __handle_x_instruction(
-                    tokens,
-                    _objMnemonic,
-                    function_size
-                );
-            else
-            {
+            // if (_objMnemonic.params.length === 0)
+            //     _line_size = __handle_x_instruction(
+            //         tokens,
+            //         _objMnemonic,
+            //         function_size
+            //     );
+            // else
+            // {
                 _objMnemonic.params.forEach(param => {
                     _line_size += param
                 });
 
                 tokens[2] = _objMnemonic.opcode;
-            }
+            // }
 
             messenger.verbose(`${__indent_output(include_depth)}   ${global.S16_MNEMONIC_BY_OPCODE(tokens[2]).mnemonic} (${tokens[2].toString(2)}) instruction at offset ${function_size} (${_line_size} bytes)\n`);
             

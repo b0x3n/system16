@@ -21,6 +21,9 @@
 //
     m16         __print_ptr
 
+    m16         __print_lines           = 0
+    m16         __repl_current_line     
+
 
 .section        code
 
@@ -54,8 +57,9 @@
 
 
     ///////////////////////////////////////////////////////
-    //  Grab the parameter into __str_ptr
+    //  Grab the parameter into __print_ptr
     //
+        par16   __repl_current_line, 2
         par16   __print_ptr, 0
 
 
@@ -102,7 +106,7 @@
 @__print_add_line
 
         cmp16   %EX, %__terminal_cols
-        jne     __print_resume
+        jge     __print_resume
 
     //  Add a new row and scroll up one
     //  position.
@@ -110,12 +114,15 @@
         mov8    OI, 6
         int     %__mon_int
 
+        add16   __print_lines, 1
+        add16   %__repl_current_line, 1
+
         jmp     __print_resume
 
 
 @__print_end
 
         pop16   BP
-        ret     0
+        ret     %__print_lines
 
     end

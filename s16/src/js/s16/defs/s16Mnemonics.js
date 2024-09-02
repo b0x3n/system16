@@ -37,6 +37,10 @@
     window.S16_MNEMONIC_PAR16           = 'par16';
     window.S16_MNEMONIC_PAR32           = 'par32';
 
+    window.S16_MNEMONIC_LOC8            = 'loc8';
+    window.S16_MNEMONIC_LOC16           = 'loc16';
+    window.S16_MNEMONIC_LOC32           = 'loc32';
+
     
     window.S16_MNEMONIC_ADD8            = 'add8';
     window.S16_MNEMONIC_ADD16           = 'add16';
@@ -175,6 +179,22 @@
 
         [window.S16_MNEMONIC_PAR32]:    {
                                             'opcode':       0x33,
+                                            'params':       [ 2, 4 ]
+                                        },
+
+
+        [window.S16_MNEMONIC_LOC8]:     {
+                                            'opcode':       0x34,
+                                            'params':       [ 2, 1 ]
+                                        },
+
+        [window.S16_MNEMONIC_LOC16]:    {
+                                            'opcode':       0x35,
+                                            'params':       [ 2, 2 ]
+                                        },
+
+        [window.S16_MNEMONIC_LOC32]:    {
+                                            'opcode':       0x36,
                                             'params':       [ 2, 4 ]
                                         },
 
@@ -411,6 +431,20 @@
                                         },
 
 
+        [`__op_${0x34}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_LOC8,
+                                            'params':       [ 2, 1 ]
+                                        },
+        [`__op_${0x35}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_LOC16,
+                                            'params':       [ 2, 2 ]
+                                        },
+        [`__op_${0x36}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_LOC32,
+                                            'params':       [ 2, 4 ]
+                                        },
+
+
 ///////////////////////////////////////////////////////////
 //  Mathematical operations
 //
@@ -537,11 +571,11 @@
                                             'params':       []
                                         },
         [`__op_${0x74}`]:               {
-                                            'mnemonic':     window.S16_MNEMONIC_GT,
+                                            'mnemonic':     window.S16_MNEMONIC_XGT,
                                             'params':       []
                                         },
         [`__op_${0x75}`]:               {
-                                            'mnemonic':     window.S16_MNEMONIC_LT,
+                                            'mnemonic':     window.S16_MNEMONIC_XLT,
                                             'params':       []
                                         }
 

@@ -425,6 +425,13 @@
             if (_code_line[4] === 0)
                 return false;
 
+
+            if (s16Process.status === window.__s16Proc.S16_STATUS_SKIPPING)
+            {
+                s16Process.status = window.__s16Proc.S16_STATUS_RUNNING;
+                return true;
+            }
+
             // if (
             //     window.__s16Config.hasOwnProperty('be_verbose') &&
             //     window.__s16Config['be_verbose']

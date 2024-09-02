@@ -61,6 +61,7 @@
     //  parameters for the readline function.
     //
         push8   %__mask_byte
+        push16  __current_line
         push16  %__input_buf_len
         push16  __input_buffer
 
@@ -74,8 +75,10 @@
     ///////////////////////////////////////////////////////
     //  Display the input prompt.
     //
+        push16  __current_line
         push16  __input_prompt
         call    print
+        pop16   AX
         pop16   AX
 
 
@@ -94,8 +97,10 @@
 
     ///////////////////////////////////////////////////////
     //
+        push16  __current_line
         push16  __input_buffer
         call    print
+        pop16   AX
         pop16   AX
 
 
@@ -106,6 +111,7 @@
 
         pop16   AX
         pop16   AX
+        pop8    AX
         pop8    AX
 
         pop16   BP

@@ -10,6 +10,7 @@
     {
 
         S16_STATUS_RUNNING:             'Running',
+        S16_STATUS_SKIPPING:            'Skipping',
         S16_STATUS_WAITING:             'Waiting',
         S16_STATUS_BLOCKING:            'Blocking',
         S16_STATUS_BREAKING:            'Breaking',

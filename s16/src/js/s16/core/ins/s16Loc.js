@@ -1,16 +1,16 @@
 ///////////////////////////////////////////////////////////
-//  System16/s16/src/js/s16/core/ins/s16Pqr.js           //
+//  System16/s16/src/js/s16/core/ins/s16Loc.js           //
 ///////////////////////////////////////////////////////////
 //
-//  The par instruction set.
+//  The loc instruction set.
 //
 
 
 ///////////////////////////////////////////////////////////
-//  The s16Par instruction.                              //
+//  The s16Loc instruction.                              //
 ///////////////////////////////////////////////////////////
 //
-    export const    s16Par= (
+    export const    s16Loc              = (
 
         s16Devices,
         read_ram,
@@ -22,15 +22,15 @@
     {
 
 
-        const   _instruction            = "par";
+        const   _instruction            = "loc";
 
 
         const   _info                   =
         [
 
-            window.S16_MNEMONIC_INFO('par8'),
-            window.S16_MNEMONIC_INFO('par16'),
-            window.S16_MNEMONIC_INFO('par32'),
+            window.S16_MNEMONIC_INFO('loc8'),
+            window.S16_MNEMONIC_INFO('loc16'),
+            window.S16_MNEMONIC_INFO('loc32'),
 
         ];
 
@@ -39,7 +39,7 @@
 //  __par()                                              //
 ///////////////////////////////////////////////////////////
 //
-        const   __par                   = (
+        const   __loc                   = (
 
             s16Process,
             code_line,
@@ -48,16 +48,16 @@
         ) =>
         {
 
-            const   __bp                = get_reg(
+            const   __sp                = get_reg(
                 s16Process.code_segment,
-                'BP'
+                'SP'
             );
 
             const   __dst_offset        = code_line[6];
             const   __offset            = code_line[7];
 
             if (size > window.__s16Sys.__mode)
-                return `par error: can't write to ${size * 8}-bit address in ${window.__s16Sys.__mode}-bit mode`;
+                return `loc error: can't write to ${size * 8}-bit address in ${window.__s16Sys.__mode}-bit mode`;
 
             let     __dst_segment       = s16Process.code_segment;
 
@@ -66,15 +66,9 @@
             if (__dst_offset >= s16Process.rw_offset && __dst_offset < s16Process.code_offset)
                 __dst_segment           = s16Process.rw_segment;
 
-            // if (size > window.__s16Sys.__mode)
-            //     size = window.__s16Sys.__mode;
-    //  __bp points to the old base pointer, __bp + 4
-    //  points to the return address, so we add 4
-    //  to the offset to reference the first parameter.
-    //
             const   __par_value         = read_ram(
                 s16Process.code_segment,
-                (__bp + __offset + 4),
+                (__sp + __offset),
                 size
             );
 
@@ -91,10 +85,10 @@
 
 
 ///////////////////////////////////////////////////////////
-//  _par8()                                              //
+//  _loc8()                                              //
 ///////////////////////////////////////////////////////////
 //
-        const   _par8                   = (
+        const   _loc8                   = (
 
             s16Process,
             code_line
@@ -102,7 +96,7 @@
         ) =>
         {
 
-            return __par(
+            return __loc(
                 s16Process,
                 code_line,
                 1
@@ -112,10 +106,10 @@
 
 
 ///////////////////////////////////////////////////////////
-//  _par16()                                             //
+//  _loc16()                                             //
 ///////////////////////////////////////////////////////////
 //
-        const   _par16                  = (
+        const   _loc16                  = (
 
             s16Process,
             code_line
@@ -123,7 +117,7 @@
         ) =>
         {
 
-            return __par(
+            return __loc(
                 s16Process,
                 code_line,
                 2
@@ -133,10 +127,10 @@
 
 
 ///////////////////////////////////////////////////////////
-//  _par32()                                             //
+//  _loc32()                                             //
 ///////////////////////////////////////////////////////////
 //
-        const   _par32                  = (
+        const   _loc32                  = (
 
             s16Process,
             code_line
@@ -144,7 +138,7 @@
         ) =>
         {
 
-            return __par(
+            return __loc(
                 s16Process,
                 code_line,
                 4
@@ -158,9 +152,9 @@
             instruction:                _instruction,
             info:                       _info,
 
-            par8:                       _par8,
-            par16:                      _par16,
-            par32:                      _par32
+            loc8:                       _loc8,
+            loc16:                      _loc16,
+            loc32:                      _loc32
 
         };
 

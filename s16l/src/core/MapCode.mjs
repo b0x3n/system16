@@ -151,40 +151,40 @@
 
                 let     _objMnemonic    = global.S16_MNEMONIC_BY_OPCODE(__tokens[2]);
                 
-                if (__is_x_instruction(__tokens[2]) === true)
-                {
-                    _objMnemonic        = global.S16_MNEMONIC_BY_OPCODE(__tokens[2]);
+                // if (__is_x_instruction(__tokens[2]) === true)
+                // {
+                //     _objMnemonic        = global.S16_MNEMONIC_BY_OPCODE(__tokens[2]);
 
-                    const   __objMnemonic = global.S16_MNEMONIC_BY_OPCODE(__tokens[3]);
-                    if ((__tokens.length - 4) != __objMnemonic.params.length)
-                        messenger.file_error(__tokens, `${__tokens.length} The ${__objMnemonic.mnemonic} instruction requires exactly ${__objMnemonic.params.length} parameters - ${__tokens}`);
+                //     const   __objMnemonic = global.S16_MNEMONIC_BY_OPCODE(__tokens[3]);
+                //     if ((__tokens.length - 4) != __objMnemonic.params.length)
+                //         messenger.file_error(__tokens, `${__tokens.length} The ${__objMnemonic.mnemonic} instruction requires exactly ${__objMnemonic.params.length} parameters - ${__tokens}`);
                     
-                    __dst_view.setUint16(__code_offset, __tokens[2], global.little_endian);
-                    __dst_view.setUint16((__code_offset + 2), __tokens[3], global.little_endian);
+                //     __dst_view.setUint16(__code_offset, __tokens[2], global.little_endian);
+                //     __dst_view.setUint16((__code_offset + 2), __tokens[3], global.little_endian);
 
-                    __line_size += 2;
-                    __code_offset += 4;
+                //     __line_size += 2;
+                //     __code_offset += 4;
 
-                    for (let param_no = 0; param_no < __objMnemonic.params.length; param_no++)
-                    {
-                        if (typeof __tokens[(param_no + 4)] === 'string')
-                            __translator.translate_token(__tokens, (param_no + 4));
-                        if (__objMnemonic.params[param_no] === 1)
-                            __dst_view.setUint8(__code_offset, __tokens[(param_no + 4)]);
-                        if (__objMnemonic.params[param_no] === 2)
-                            __dst_view.setUint16(__code_offset, __tokens[(param_no + 4)], global.little_endian);
-                        if (__objMnemonic.params[param_no] === 4)
-                            __dst_view.setUint32(__code_offset, __tokens[(param_no + 4)], global.little_endian);
-                        __line_size += __objMnemonic.params[param_no];
-                        __code_offset += __objMnemonic.params[param_no];
+                //     for (let param_no = 0; param_no < __objMnemonic.params.length; param_no++)
+                //     {
+                //         if (typeof __tokens[(param_no + 4)] === 'string')
+                //             __translator.translate_token(__tokens, (param_no + 4));
+                //         if (__objMnemonic.params[param_no] === 1)
+                //             __dst_view.setUint8(__code_offset, __tokens[(param_no + 4)]);
+                //         if (__objMnemonic.params[param_no] === 2)
+                //             __dst_view.setUint16(__code_offset, __tokens[(param_no + 4)], global.little_endian);
+                //         if (__objMnemonic.params[param_no] === 4)
+                //             __dst_view.setUint32(__code_offset, __tokens[(param_no + 4)], global.little_endian);
+                //         __line_size += __objMnemonic.params[param_no];
+                //         __code_offset += __objMnemonic.params[param_no];
 
-                        continue;
-                    }
+                //         continue;
+                //     }
 
-                    //__code_offset += __line_size;
-                }
-                else
-                {
+                //     //__code_offset += __line_size;
+                // }
+                // else
+                
                     if (_objMnemonic === false)
                         messenger.file_error(__tokens, `Unknown opcode '${__tokens[2]}'`);
 
@@ -218,7 +218,7 @@
                         __line_size += 4;
                     }
                 }
-                }
+                
 
                 messenger.verbose(` (${__line_size} bytes) @ offset ${__line_offset} (modified opcode ${__opcode.toString(2)})\n`);
 

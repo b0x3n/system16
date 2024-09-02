@@ -136,7 +136,7 @@
 
             $(`#${_objDisplay['cells']['id-prefix']}${row}_${col}`).html(char_byte);
 
-            if  (++col > __cols)
+            if  (++col >= __cols)
             {
                 col = 0;
                 if ((row + 1) < __rows)

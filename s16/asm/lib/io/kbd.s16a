@@ -25,6 +25,8 @@
 
     m16         __readline_bytes_read
 
+    m16         __repl_line_number;
+
 
 .section        code
 
@@ -59,7 +61,8 @@
     ///////////////////////////////////////////////////////
     //  Grab the parameters.
     //
-        par8    __readline_mask_char, 4
+        par8    __readline_mask_char, 6
+        par16   __repl_line_number, 4
         par16   __readline_buf_len, 2
         par16   __readline_buf_ptr, 0
 
@@ -72,6 +75,14 @@
 
 
 @__readline_loop
+
+    
+        mov8   OI, 4
+        int     %__mon_int
+        cmp16   %EX, %__terminal_cols
+        je      __add_line
+        
+@__resume_readline
 
     ///////////////////////////////////////////////////////
     //  Make sure we don't exceed the maximum buffer
@@ -94,7 +105,8 @@
     //
         cmp8    %__enter_key, %FX
         je      __readline_end
-        
+
+
     ///////////////////////////////////////////////////////
     //  Add the character to the buffer and prepare for
     //  the next pass...
@@ -112,6 +124,12 @@
         int     %__mon_int
 
         jmp     __readline_loop;
+
+
+@__add_line
+
+        add16   %__repl_line_number, 1
+        jmp __resume_readline
 
 
 @__readline_end

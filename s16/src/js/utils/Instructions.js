@@ -18,6 +18,8 @@
     import { s16Calc } from             "./../s16/core/ins/s16Calc.js";
     import { s16Peek } from             "./../s16/core/ins/s16Peek.js";
     import { s16Par } from              "./../s16/core/ins/s16Par.js";
+    import { s16Loc } from              "./../s16/core/ins/s16Loc.js";
+    import { s16X } from                "./../s16/core/ins/s16X.js";
 
 
 ///////////////////////////////////////////////////////////
@@ -53,7 +55,9 @@
             s16Jmp(s16Devices, read_ram, write_ram, get_reg, set_reg),
             s16Calc(s16Devices, read_ram, write_ram, get_reg, set_reg),
             s16Peek(s16Devices, read_ram, write_ram, get_reg, set_reg),
-            s16Par(s16Devices, read_ram, write_ram, get_reg, set_reg)
+            s16Par(s16Devices, read_ram, write_ram, get_reg, set_reg),
+            s16Loc(s16Devices, read_ram, write_ram, get_reg, set_reg),
+            s16X(s16Devices, read_ram, write_ram, get_reg, set_reg)
             
         ];
 
