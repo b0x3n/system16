@@ -1,20 +1,50 @@
-.section ro
-
-    m8  six = 'A';
-    m16 nums[2] = 255, 255;
-    m32 value = 100;
-
-.section rw
-
-    m8 one  = 10;
-    m8 two = 20;
-    m8 four = 30;
 
 
-.section code
+    .include    lib/hw.s16a lib/io.s16a;
 
-    function _main
+    .section    ro
 
-        ret 1;
+        m8      __mon_hdl       = 20;
+        m8      __kbd_hdl       = 30;
 
-    end
+
+        m8      __yes[4]        = "Yes";
+        m8      __no[3]         = "No";
+
+
+    .section    code
+
+        function    _main
+
+            
+            dev     1, __mon_hdl, __monitor_handler;
+            dev     2, __kbd_hdl, __keyboard_handler;
+
+
+            mov8    OI, 2;
+
+            cmp8    10, 10;
+            xe      push32, __yes;
+
+            jmp     __end;
+
+
+@__lbl_yes
+
+            push32  __yes;
+
+            jmp     __end;
+
+
+@__lbl_no
+
+            push32  __no;
+
+            jmp     __end;
+
+
+@__end
+
+            call    print;
+
+        end

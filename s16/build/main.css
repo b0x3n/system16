@@ -250,6 +250,7 @@ nav a {
 }
 
 .debug_options {
+  display: none;
   position: absolute;
   top: 0px;
   right: 1vw;

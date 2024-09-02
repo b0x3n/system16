@@ -21,6 +21,7 @@
     const   S16_SYSTEM_HALT             = 0b00001000;
     const   S16_SYSTEM_WAIT             = 0b00000100;
     const   S16_SYSTEM_BREAK            = 0b00000010;
+    const   S16_SYSTEM_HANG             = 0b00000001;
 
 
 ///////////////////////////////////////////////////////////
@@ -54,7 +55,7 @@
         let     __int_handler           = false;
 
 
-        let     __clock_speed           = 1;
+        let     __clock_speed           = .3;
         let     __clock_timer_id        = false;
 
         let     __alu                   = false;
@@ -79,13 +80,10 @@
 
             const   __ram_view          = new DataView(__ram[segment]);
 
-            console.log(__ram_view.getUint32(window.S16_HEADER_RW, window.little_endian));
-
             if (reg === 'RT' || reg === 'FL' || reg === 'OI' || reg === 'II')
                 __ram_view.setUint8(window.S16_REG[reg], value);
             else
                 __ram_view.setUint32(window.S16_REG[reg], value, window.little_endian);
- console.log(__ram_view.getUint32(window.S16_HEADER_RW, window.little_endian));
             
         };
 
@@ -129,10 +127,8 @@
                 reg === window.S16_REG['HP']    ||
                 reg === window.S16_REG['FL']
             )
-            {
-                console.log(`Register ${reg} is not writeable`);
-                return false;
-            }
+                return `Register ${reg} is not writeable`;
+                //return false;
 
             return true;
 
@@ -640,8 +636,6 @@
             )
                 return false;
 
-            console.log(`>>> PARAM base offset = ${__offset}, BP=${__bp}`);
-
             if (code_line[0].mnemonic === window.S16_MNEMONIC_PAR8)
             {
                 __offset += code_line[3];
@@ -779,6 +773,99 @@
 
 
 ///////////////////////////////////////////////////////////
+//  __evaluate_expression()                              //
+///////////////////////////////////////////////////////////
+//
+        const   __evaluate_expression   = (
+
+            opcode,
+            flags
+
+        ) =>
+        {
+
+            if (flags & 0x10000000)
+            {
+                if (
+                    opcode === window.S16_MNEMONICS['XLE'].opcode    ||
+                    opcode === window.S16_MNEMONICS['XLT'].opcode
+                )
+                    return true;
+            }
+
+            if (flags & 0x01000000)
+            {
+                if (
+                    opcode === window.S16_MNEMONICS['XE'].opcode    ||
+                    opcode === window.S16_MNEMONICS['XLE'].opcode   ||
+                    opcode === window.S16_MNEMONICS['XGE'].opcode
+                )
+                    return true;
+            }
+
+            if (flags & 0x00100000)
+            {
+                if (
+                    opcode === window.S16_MNEMONICS['XGE'].opcode   ||
+                    opcode === window.S16_MNEMONICS['XGT'].opcode
+                )
+                    return true;
+            }
+
+            if (! (flags & 0b01000000))
+            {
+                if (opcode === window.S16_MNEMONICS['XNE'].opcode)
+                    return true;
+            }
+
+            return false
+
+        };
+
+
+///////////////////////////////////////////////////////////
+//  __prep_x_instruction()                               //
+///////////////////////////////////////////////////////////
+//
+        const   __prep_x_instruction    = (
+            
+            ram_view,
+            ip
+        
+        ) =>
+        {
+
+            let     __flags             = __get_reg('FL', __segment);
+            //let     __ip                = __get_reg('IP', __segment);
+
+            let     __modifier          = ram_view.getUint8(ip);
+            let     __opcode            = ram_view.getUint8(ip + 1);
+
+            let     _code_line          = [];
+
+            if (window.little_endian)
+            {
+                __opcode = __modifier;
+                __modifier = ram_view.getUint8(ip + 1);
+            }
+
+            console.log(`Mon dieu! IP = ${ip}, op === ${__opcode.toString(16)}, modifier = ${__modifier.toString(16)}`)
+    
+    //  If it's not an x instruction, return fale - the
+    //  fetch/execute will carry on as usual.
+    //
+            if (__opcode < 0x70 || __opcode > 0x75)
+                return false;
+
+    //  We have an conditional instruction and it must be
+    //  evaluated.
+    //
+            return = __evaluate_expression(__opcode, __flags);
+
+        };
+
+
+///////////////////////////////////////////////////////////
 //  __fetch_line()                                       //
 ///////////////////////////////////////////////////////////
 //
@@ -797,9 +884,23 @@
 
     //  Fetch the next instruction/opcode (2 bytes).
     //
-            const   __ip            = __get_reg('IP', __segment);
-            const   __line_offset   = __ip;
-            
+            let     __ip            = __get_reg('IP', __segment);
+            let     __line_offset   = __ip;
+
+    //  Is it an x instruction? If is we skip the 2
+    //  bytes and return.
+    //
+            const   __eval          = __prep_x_instruction(__ram_view, __ip)
+        
+            if (__eval === true)
+            {
+                __ip += 2;
+                __line_offset = __ip;
+            }
+
+            if (typeof __eval === 'string' && __eval === "SKIP")
+                __ip += 2;
+
     //  Get the entire instruction (2 bytes) and the
     //  individual components (modifier & opcode).
     //
@@ -890,7 +991,6 @@
 
             __set_reg('IP', (__ip + __line_size), __segment);
 
-
             __line_number++;
 
             messenger.verbose(` ${__opcode} (${__objMnemonic.mnemonic}) ${__operands} @ offset ${__ip}`);
@@ -898,6 +998,9 @@
 
             const   __line_out          = [ __objMnemonic, __opcode, ...__operands ];
         
+            if (__eval === "SKIP")
+                __line_out[0] = "SKIP";
+
     ///////////////////////////////////////////////////////
     //  If the debugger is enabled a handler is given
     //  the __line_out (code_line) array.
@@ -971,6 +1074,8 @@
     //  the __fetch_line() method will return an array
     //  containing our instruction & operands.
     //
+    
+    console.log(`Fetching from ${__get_reg('IP')}`);
             __code_line = __fetch_line();
 
             if (__code_line === true)
@@ -992,6 +1097,12 @@
                     return false;
                 }
 
+                return true;
+            }
+
+            if (__code_line[0] === "SKIP")
+            {
+                console.log(`Skipping to ${__get_reg('IP')}`);
                 return true;
             }
 
@@ -1079,11 +1190,14 @@
             __initialise_registers(__ram_view);
             __build_vector_table();
 
-            // if (__debugger)
-            // {
-            //     const   __flags             = 0b00000010;
-            //     __set_reg('FL', __flags);
-            // }
+            if (__debugger)
+            {
+            let     __flags             = __get_reg('FL');
+
+            __flags |= S16_SYSTEM_BREAK;
+
+            __set_reg('FL', __flags);
+            }
 
             objDevices[2].initialise(
                 __ram_view,
@@ -1157,7 +1271,7 @@
                         return;
                     }
 
-                    if (__flags & S16_SYSTEM_BREAK || __flags & S16_SYSTEM_WAIT)
+                    if (__flags & S16_SYSTEM_BREAK || __flags & S16_SYSTEM_WAIT || __flags & S16_SYSTEM_HANG)
                         return;
 
                     const   __return_value = __fetch_and_execute(__ram_view);
@@ -1200,6 +1314,30 @@
 //
         const   __initialise            = () =>
         {
+
+    //  Some event handlers for halt, wait and break
+    //  states.
+    //
+            const   __wait_event        = new Event('s16_system_wait');
+            const   __wait_resume       = new Event('s16_system_wait_resume');
+
+            document.addEventListener('s16_system_wait', () => {
+                let     __flags         = __get_reg('FL');
+
+                __flags |= S16_SYSTEM_HANG;
+                __set_reg('FL', __flags);
+
+                console.log(`HALT`);
+            });
+
+            document.addEventListener('s16_system_wait_resume', () => {
+                let     __flags         = __get_reg('FL');
+
+                __flags = __flags & (~S16_SYSTEM_HANG);
+                __set_reg('FL', __flags);
+
+                console.log(`UNHALT`);
+            });
 
             __alu                       = ALU(
                 messenger,

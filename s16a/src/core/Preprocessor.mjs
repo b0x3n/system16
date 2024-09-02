@@ -394,6 +394,54 @@
 
 
 ///////////////////////////////////////////////////////////
+//  __handle_x_instruction()                             //
+///////////////////////////////////////////////////////////
+//
+        const   __handle_x_instruction  = (
+            
+            tokens,
+            objMnemonic
+
+        ) =>
+        {
+
+            let     _line_size          = 4;
+
+            if (tokens.length < 4)
+                messenger.file_error(tokens, `The ${tokens[2]} instruction requires at least one parameter`);
+
+            if (! global.S16_MNEMONICS.hasOwnProperty(tokens[3]))
+                messenger.file_error(tokens, `Invalid mnemonic instruction '${tokens[3]}'`);
+         
+            const   _objMnemonic        = global.S16_MNEMONICS[tokens[3]];
+            const   __params            = _objMnemonic.params;
+
+            if ((tokens.length - 4) !== __params.length)
+                return messenger.file_error(tokens, `The ${tokens[3]} instruction requires exactly ${__params.length} parameters`);
+
+            tokens[2] = objMnemonic.opcode;
+            tokens[3] = _objMnemonic.opcode;
+
+            for (let param_no = 0; param_no < __params.length; param_no++)
+            {
+                _line_size += __params[param_no];
+    //  For every parameter we set the next left-most
+    //  bit - so if we have 1 parameter the last
+    //  4 bits are 1000, if we have two the last
+    //  4 bits will be 1100, for 3 params 1110
+    //  and for four 1111
+    // //
+    //             tokens[2] |= (0b0000000000000001 << (15 - param_no));
+            }
+
+        //    console.log(`+---------------------------------- Modified ${_objMnemonic.opcode.toString(2)} = ${tokens[2].toString(2)} -------------------------------------++`)
+
+            return _line_size;
+
+        };
+
+
+///////////////////////////////////////////////////////////
 //  __check_code()                                       //
 ///////////////////////////////////////////////////////////
 //
@@ -412,15 +460,37 @@
     //
             if (! global.S16_MNEMONICS.hasOwnProperty(tokens[2]))
                 messenger.file_error(tokens, `Invalid mnemonic instruction '${tokens[2]}'`);
-
+         
             const   _objMnemonic        = global.S16_MNEMONICS[tokens[2]];
+   
+    //  The x (execute line) instructions will execute
+    //  a single line of code based on the outcome of
+    //  an evaluation - e.g if we want to return
+    //  if two values are equal:
+    //
+    //      cmp8    val1,   val2;
+    //      ex      add32   val1,   val2
+    //
+    //  So in this case we require special handling...
+    //
+    //  We know it's an x instruction if the params
+    //  list is empty.
+    //
+            if (_objMnemonic.params.length === 0)
+                _line_size = __handle_x_instruction(
+                    tokens,
+                    _objMnemonic,
+                    function_size
+                );
+            else
+            {
+                _objMnemonic.params.forEach(param => {
+                    _line_size += param
+                });
 
-            _objMnemonic.params.forEach(param => {
-                _line_size += param
-            });
+                tokens[2] = _objMnemonic.opcode;
+            }
 
-            tokens[2] = _objMnemonic.opcode;
-            
             messenger.verbose(`${__indent_output(include_depth)}   ${global.S16_MNEMONIC_BY_OPCODE(tokens[2]).mnemonic} (${tokens[2].toString(2)}) instruction at offset ${function_size} (${_line_size} bytes)\n`);
             
             return _line_size;

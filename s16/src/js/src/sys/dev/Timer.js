@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-//  System16/s16/src/js/src/sys/dev/defs/Timer.js        //
+//  System16/s16/src/js/s16/core/Timer.js                //
 ///////////////////////////////////////////////////////////
 //
 //  I was using setInterval as a timer/clock but it was

@@ -60,6 +60,14 @@
     global.S16_MNEMONIC_JLT             = 'jlt';
 
 
+    global.S16_MNEMONIC_XE              = 'xe';
+    global.S16_MNEMONIC_XNE             = 'xne';
+    global.S16_MNEMONIC_XGE             = 'xge';
+    global.S16_MNEMONIC_XLE             = 'xle';
+    global.S16_MNEMONIC_XGT             = 'xgt';
+    global.S16_MNEMONIC_XLT             = 'xlt';
+
+
     global.S16_MNEMONICS                =
     {
 
@@ -227,8 +235,51 @@
         [global.S16_MNEMONIC_JLT]:      {
                                             'opcode':       0x66,
                                             'params':       [ 4 ]
-                                        }
+                                        },
 
+
+    ///////////////////////////////////////////////////////
+    //  Execute - this allows you to execute a line of
+    //  code based on the outcome of an expression, e.g:
+    //
+    //      cmp32   val1, val2;
+    //      xe      call function_name
+    //
+    //  This means you can execute an instruction based
+    //  on an evaluation - we have the same variants as
+    //  with the jmp instruction:
+    //
+    //      xe      - equal to
+    //      xne     - not equal to
+    //      xlt     - less than
+    //      xgt     - greater than
+    //      xle     - less than or equal to
+    //      xge     - greater than or equal to
+    //
+        [global.S16_MNEMONIC_XE]:       {
+                                            'opcode':       0x70,
+                                            'params':       []
+                                        },
+        [global.S16_MNEMONIC_XNE]:      {
+                                            'opcode':       0x71,
+                                            'params':       []
+                                        },
+        [global.S16_MNEMONIC_XGE]:      {
+                                            'opcode':       0x72,
+                                            'params':       []
+                                        },
+        [global.S16_MNEMONIC_XLE]:      {
+                                            'opcode':       0x73,
+                                            'params':       []
+                                        },
+        [global.S16_MNEMONIC_XGT]:      {
+                                            'opcode':       0x74,
+                                            'params':       []
+                                        },
+        [global.S16_MNEMONIC_XLT]:      {
+                                            'opcode':       0x75,
+                                            'params':       []
+                                        }
     };
 
 

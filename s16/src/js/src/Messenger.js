@@ -1,9 +1,8 @@
 ///////////////////////////////////////////////////////////
-//  System16/s16/src/js/src/Messenger.js                 //
+//  System16/s16/src/s16/utils/Messenger.js              //
 ///////////////////////////////////////////////////////////
 //
-//  Basic routines for managing errors/warnings and
-//  verbose output.
+//
 //
 
 

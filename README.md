@@ -22,4 +22,7 @@ the demo app can be viewed at:
 
     https://b0x3n.github.io/system16
 
+I've not updated this much in recent weeks because it's
+a prototype and I intend to re-build the app.
+
     

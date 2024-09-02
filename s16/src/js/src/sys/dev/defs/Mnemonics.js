@@ -56,6 +56,16 @@
     window.S16_MNEMONIC_JNE             = 'jne';
     window.S16_MNEMONIC_JGE             = 'jge';
     window.S16_MNEMONIC_JLE             = 'jle';
+    window.S16_MNEMONIC_JGT             = 'jgt';
+    window.S16_MNEMONIC_JLT             = 'jlt';
+
+
+    window.S16_MNEMONIC_XE              = 'xe';
+    window.S16_MNEMONIC_XNE             = 'xne';
+    window.S16_MNEMONIC_XGE             = 'xge';
+    window.S16_MNEMONIC_XLE             = 'xle';
+    window.S16_MNEMONIC_XGT             = 'xgt';
+    window.S16_MNEMONIC_XLT             = 'xlt';
 
 
     window.S16_MNEMONICS                =
@@ -134,15 +144,15 @@
                                         },
 
     //  
-        [global.S16_MNEMONIC_PAR8]:     {
+        [window.S16_MNEMONIC_PAR8]:     {
                                             'opcode':       0x30,
                                             'params':       [ 1, 4 ]
                                         },
-        [global.S16_MNEMONIC_PAR16]:    {
+        [window.S16_MNEMONIC_PAR16]:    {
                                             'opcode':       0x31,
                                             'params':       [ 2, 4 ]
                                         },
-        [global.S16_MNEMONIC_PAR32]:    {
+        [window.S16_MNEMONIC_PAR32]:    {
                                             'opcode':       0x32,
                                             'params':       [ 4, 4 ]
                                         },
@@ -225,6 +235,32 @@
         [window.S16_MNEMONIC_JLT]:      {
                                             'opcode':       0x66,
                                             'params':       [ 4 ]
+                                        },
+
+
+        [window.S16_MNEMONIC_XE]:       {
+                                            'opcode':       0x70,
+                                            'params':       []
+                                        },
+        [window.S16_MNEMONIC_XNE]:      {
+                                            'opcode':       0x71,
+                                            'params':       []
+                                        },
+        [window.S16_MNEMONIC_XGE]:      {
+                                            'opcode':       0x72,
+                                            'params':       []
+                                        },
+        [window.S16_MNEMONIC_XLE]:      {
+                                            'opcode':       0x73,
+                                            'params':       []
+                                        },
+        [window.S16_MNEMONIC_XGT]:      {
+                                            'opcode':       0x74,
+                                            'params':       []
+                                        },
+        [window.S16_MNEMONIC_XLT]:      {
+                                            'opcode':       0x75,
+                                            'params':       []
                                         }
 
     };
@@ -402,6 +438,35 @@
         [`__op_${0x66}`]:               {
                                             'mnemonic':     window.S16_MNEMONIC_JLT,
                                             'params':       [ 4 ]
+                                        },
+
+
+    ///////////////////////////////////////////////////////
+    //  x instructions.
+    //
+        [`__op_${0x70}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_XE,
+                                            'params':       []
+                                        },
+        [`__op_${0x71}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_XNE,
+                                            'params':       []
+                                        },
+        [`__op_${0x72}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_XGE,
+                                            'params':       []
+                                        },
+        [`__op_${0x73}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_XLE,
+                                            'params':       []
+                                        },
+        [`__op_${0x74}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_GT,
+                                            'params':       []
+                                        },
+        [`__op_${0x75}`]:               {
+                                            'mnemonic':     window.S16_MNEMONIC_LT,
+                                            'params':       []
                                         }
 
     };

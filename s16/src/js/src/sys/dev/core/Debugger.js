@@ -271,8 +271,6 @@
                 if (__offset >= (start_offset + 8))
                     break;
 
-                console.log(`BUILDING RW at offset ${__offset}, byte ${__value}`)
-
                 __html_out              +=
                 `
                     <div
@@ -415,6 +413,8 @@
                 __exe_size
             );
 
+            $('#debug_options').css('display', 'block');
+            
             $('#debug_option_break').on('click', () => {
                 if (__state !== S16_DEBUG_RUN)
                     return;
@@ -450,8 +450,6 @@
 
             const   __flags             = ram_view.getUint8(window.S16_REG['FL']);
 
-    //        console.log(`Debugger refresh...`);
-
             const   __objEnable         = {
                 'opacity':      '0.9',
                 'cursor':       'pointer',
@@ -464,9 +462,7 @@
             };
 
             let     __objBreak;
-            //let     __objResume;
             let     __objReset;
-            //let     __objRefresh;
             let     __objRun;
             let     __objStep;
             let     __objClock;
@@ -485,7 +481,6 @@
     //
                 __objBreak              = __objDisable;
 
-                
     //  Run is enabled for both halt and break - when
     //  in break mode it resumes execution, when in
     //  halt mode it restarts the application.
@@ -509,13 +504,10 @@
             }
             else {
                 __state = S16_DEBUG_RUN;
-
-         //       console.log(`System enabled - debugging enabled`);
                
     //  System is running, Break is enabled.
     // 
                 __objBreak              = __objEnable;
-            //    __objResume             = __objDisable;
 
     //  Reset is always diabled here - you can't reset
     //  while the system is running...well, maybe you
@@ -525,7 +517,6 @@
     //  here.
     //
                 __objReset              = __objDisable;
-            //    __objRefresh            = __objDisable;
                 __objRun                = __objDisable;
                 __objStep               = __objDisable;
 
@@ -536,9 +527,7 @@
             }
 
             $('#debug_option_break').css(__objBreak);
-            //$('#debug_option_resume').css(__objResume);
             $('#debug_option_reset').css(__objReset);
-            //$('#debug_option_refresh').css(__objRefresh);
             $('#debug_option_run').css(__objRun);
             $('#debug_option_step').css(__objStep);
             $('#clock_speed').css(__objClock);
@@ -572,9 +561,6 @@
             [
                 'm8', 'm16', '', 'm32'
             ];
-
-    //        console.log(`Updating debugger...`);
-
             
     //  The active instruction pointer is highlighted...
     //

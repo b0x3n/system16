@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-//  System16/s16/src/js/src/sys/dev/Keyboard.js          //
+//  System16/s16/src/js/s16/dev/Keyboard.js              //
 ///////////////////////////////////////////////////////////
 //
 //
@@ -46,7 +46,7 @@
                 let     __flags         = get_reg('FL');
                 let     __key           = event.key;
 
-    //  Disable the stop bit in FL - this will
+    //  Disable the WAIT bit in FL - this will
     //  allow the system to resume execution.
     //
                 __flags = __flags & (~0b00000100);

@@ -359,7 +359,7 @@
                                 background-color:       ${_objDisplay['cells']['background-color']}px;
                             "
                         >
-                            #
+                            &nbsp;
                         </div>
                     `;
 
@@ -402,7 +402,20 @@
 
             __build_terminal(is_reset);
 
+            // if (cursor_row !== false || cursor_col !== false)
+            // {
+            //     __disable_cursor();
+
+            //     if (cursor_row !== false)
+            //         _objDisplay['cursor']['row'] = cursor_row;
+            //     if (cursor_col !== false)
+            //         _objDisplay['cursor']['col'] = cursor_col;
+
+            //     _reset_cursor();
+            // }
+
             _objDisplay['cursor']['reset'] = _reset_cursor;
+            _objDisplay['cursor']['disable'] = __disable_cursor;
             
         };
 
@@ -410,12 +423,6 @@
         messenger.verbose(` Building terminal...`);
 
         __initialise();
-
-
-        $(window).on('resize', () => {
-            messenger.verbose(` Resizing terminal...`);
-            __initialise(true);
-        });
 
         return _objDisplay;
 

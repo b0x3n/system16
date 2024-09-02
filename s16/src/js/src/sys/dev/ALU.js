@@ -102,10 +102,8 @@
     
                 __lval = ram_view.getUint32(__dst, window.little_endian);
                 
-                const   _result = parseInt(__lval) + parseInt(__rval);
-                console.log(`\\0x1b[31m;+------------------------------------------------  code_line[2] = ${code_line[2]} === ${__lval} + ${__rval} == ${_result}\\0x1b[0m;]`)
-                ram_view.setUint32(__dst, parseInt(_result), window.little_endian);
-                console.log(`------------------------------------------- UPDATED ADDR ${__dst} = ${ram_view.getUint32(__dst, window.little_endian)}`);
+                //const   _result = parseInt(__lval) + parseInt(__rval);
+                ram_view.setUint32(__dst, (__lval + __rval), window.little_endian);
             }
 
             if (__lval !== false)
@@ -254,7 +252,7 @@
             )
                 return false;
 
-    //  Unset the first 3 bits in flags.2
+    //  Unset the first 3 bits in flags.
     //
             __flags = __flags & (~0b11100000);
 
@@ -266,6 +264,8 @@
                 __flags = __flags |= 0b10000000;
             if (__rval > __lval)
                 __flags = __flags |= 0b00100000;
+
+            console.log(`__FLAGS = ${__flags.toString(2)}`)
 
     //  Set the flags in the FL register.
             set_reg('FL', __flags, segment);

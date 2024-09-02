@@ -45,7 +45,7 @@
             'flicker':                  true,
             'blink':                    1000,
 
-            'debug':                    true,
+            'debug':                    false,
             'be_verbose':               false
 
         
@@ -137,11 +137,13 @@
                     );
 
 
-    //  Build the debugger.
+    //  Build the debugger if the debug option is set.
     //
-                    __debugger.initialise();
-
-                    _process.enable_debugger(__debugger.fetch_line);
+                    if (objConfigure['debug'] !== false)
+                    {
+                        __debugger.initialise();
+                        _process.enable_debugger(__debugger.fetch_line);
+                    }
 
     //  TODO: Header check
     //

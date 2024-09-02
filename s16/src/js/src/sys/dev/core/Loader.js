@@ -36,7 +36,6 @@
                 file_name = `127.0.0.1/s16/exe/sys16.s16`;
 
             req.open("GET", file_name, false);
-            //req.contentType = 'utf-8';
 
             req.onload = (event) => {
                 const   string_2_arraybuffer = str =>
