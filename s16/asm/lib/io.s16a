@@ -200,7 +200,7 @@
                         push32  __max_bytes;
                         push32  %__buffer_ptr;
 
-                        call    __getline_delete;
+                        //call    __getline_delete;
 
                         jmp     __getline_loop;
 
@@ -229,37 +229,4 @@
 
                 end
 
-
-        .section                rw
-
-                m32             __delete_ptr;
-                m32             __buffer_size;
-                m32             __buffer_max_size;
-
-
-        .section                code
-
-                function        __getline_delete
-
-                        cmp32   %__buffer_size, %__buffer_max_size;
-                        xe      mov32 AX, BX;
-
-                        push32  %BP;
-                        mov32   BP, %SP;
-
-                        par32   __delete_ptr, 1;
-                        par32   __buffer_size, 2;
-                        par32   __buffer_max_size, 3;
-
-
-
-                        pop32   BX;
-                        pop32   BX;
-                        pop32   BX;
-
-                        pop32   BP;
-
-                        ret     0;
-
-                end
 
