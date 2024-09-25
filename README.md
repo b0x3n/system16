@@ -2,7 +2,7 @@
 
 You can view a live demo [here](https://b0x3n.github.io/system16/)
 
-It might not look like there's much going on but there there is.
+It might not look like there's much going on, but there is.
 
 If you check the demo you'll be presented with a simple looking display that looks similar to a terminal, there's a blinking cursor and you can input a string of text and hit return and whatever you input will be echo'd back to you, nothing special.
 
