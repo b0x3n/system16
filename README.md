@@ -1,6 +1,6 @@
 # System16
 
-You can view a live [here](https://b0x3n.github.io/system16/)
+You can view a live demo [here](https://b0x3n.github.io/system16/)
 
 It might not look like there's much going on but there there is.
 
