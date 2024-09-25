@@ -11,8 +11,11 @@ But, honestly it kinda is! What is really happening is the browser is fetching a
 The *bytecode* is the output of an assembler (__s16a__) and linker (__s16l__), these applications (written in __Node__) are used to assemble and link source files written in a simple __assembly__ language I created - you can see the source for the *echo shell* [here](https://github.com/b0x3n/system16/tree/master/s16/asm)
 
 The assembler can be found [here](https://github.com/b0x3n/system16/tree/master/s16a)
-The liner can be found [here](https://github.com/b0x3n/system16/tree/master/s16l)
+
+The linker can be found [here](https://github.com/b0x3n/system16/tree/master/s16l)
+
 The binary (*bytecode*) executable can be found [here](https://github.com/b0x3n/system16/tree/master/s16/exe)
+
 
 ## The assembly language
 
