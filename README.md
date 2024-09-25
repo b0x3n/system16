@@ -21,7 +21,7 @@ The binary (*bytecode*) executable can be found [here](https://github.com/b0x3n/
 
 The assembly language is farily simple - there's a handful of instructions, enough to get something done, like build the simple shell you see running in the terminal.
 
-We have a stack which we can push and pop to and from, we even have a call instruction that allows us to invoke other functions using the standard __C__ calling convention, we have interrupts, registers, etc.
+We have a stack which we can push and pop to and from, we even have a call instruction that allows us to invoke other functions using the standard __C__ calling convention, we have interrupts, registers, etc. You can, if you're that way inclined - implement a buffer overflow by overwriting the return pointer on the stack - it's a sandbox.
 
 The front-end implements an interface that mimics a terminal, if you've programmed in __ncurses__ before you'll be familiar with the concept, each *character cell* can be addressed individually using line/column values - the browser is just loading the pre-assembled bytecode/executable into virtual __RAM__ then letting the virtual __CPU__ do it's thing until the program terminates.
 
